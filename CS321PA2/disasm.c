@@ -4,12 +4,16 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <stdint.h>
+#include <sys/mman.h>
+#include <endian.h>
 
 int main(int argc, char *argv[]) {
 
 	int fd;
 	struct stat buf;
 	char *program;
+	int *bprogram;
 	
 	// check for correct # of arguments
 	if (argc != 2) {
@@ -44,7 +48,11 @@ int main(int argc, char *argv[]) {
 	// buf.st / 4 = # of 32-bit integers
 	bprogram = calloc(buf.st_size / 4, sizeof(*bprogram));
 
-	
+	// convert to 32 bit int
+	for (int i = 0; i < (buf.st_size / 4); i++) {
+		program[i] = be32toh(program[i]);
+		printf("\n%s\n", program[i]);
+	}
 
 	if (program == NULL) {
 		perror("Program is null");
