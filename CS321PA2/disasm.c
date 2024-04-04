@@ -13,7 +13,8 @@ int main(int argc, char *argv[]) {
 	int fd;
 	struct stat buf;
 	char *program;
-	int *bprogram;
+	uint32_t *bprogram;
+	//int *bprogram;
 	
 	// check for correct # of arguments
 	if (argc != 2) {
@@ -47,10 +48,14 @@ int main(int argc, char *argv[]) {
 	// allocate memory for array of elements from file
 	// buf.st / 4 = # of 32-bit integers
 	bprogram = calloc(buf.st_size / 4, sizeof(*bprogram));
+	
+	printf("bprogramsize: %d\n", (buf.st_size / 4));
 
 	// convert to 32 bit int
 	for (int i = 0; i < (buf.st_size / 4); i++) {
-		bprogram[i] = be32toh(program[i]);
+		bprogram[i] = be32toh(*(uint32_t *)(
+					program + i * sizeof(uint32_t)));
+		//bprogram[i] = be32toh(program[i]);
 		printf("%d\n", bprogram[i]);
 	}
 
