@@ -28,7 +28,24 @@ int main(int argc, char *argv[]) {
 	fstat(fd, &buf);
 
 	// allocate memory for file contents
-	program = malloc(buf.st_size);
+	//program = malloc(buf.st_size);
+	// map contents of the file into memory,
+	// accessible through 'program' pointer
+	program = mmap(
+			NULL,
+			buf.st_size,
+			PROT_READ | PROT_WRITE,
+			MAP_PRIVATE,
+			fd,
+			0
+		       );
+
+	// allocate memory for array of elements from file
+	// buf.st / 4 = # of 32-bit integers
+	bprogram = calloc(buf.st_size / 4, sizeof(*bprogram));
+
+	
+
 	if (program == NULL) {
 		perror("Program is null");
 		close(fd);
