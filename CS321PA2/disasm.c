@@ -53,9 +53,10 @@ int main(int argc, char *argv[]) {
 
 	// convert to 32 bit int
 	for (int i = 0; i < (buf.st_size / 4); i++) {
-		bprogram[i] = be32toh(*(uint32_t *)(
-					program + i * sizeof(uint32_t)));
+		bprogram[i] = be32toh(*(uint32_t *)(program + i * sizeof(uint32_t)));
 		//bprogram[i] = be32toh(program[i]);
+		int p = (bprogram[i] >> 21) & 0x7ff;
+		//printf("%d\n", p);
 		printf("%d\n", bprogram[i]);
 	}
 
@@ -74,8 +75,7 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 
-	printf("Contents of file: \n%s\n", program);
-
+	
 	free(bprogram);
 	munmap(program, buf.st_size);
 	close(fd);
