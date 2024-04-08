@@ -67,8 +67,8 @@ int main(int argc, char *argv[]) {
 	for (int i = 0; i < (buf.st_size / 4); i++) {
 		program[i] = be32toh(program[i]);
 		intfloat temp;
-		i = program[i];
-		float_bits(i);
+		temp.i = program[i];
+		float_bits(temp);
 	}
 
 	if (program == NULL) {
