@@ -10,7 +10,8 @@
 
 // declare function
 //void decode_instruction(int instruction);
-void decode_instruction(uint32_t instruction);
+//void decode_instruction(uint32_t instruction);
+void decode_instruction(intfloat instruction);
 
 int main(int argc, char *argv[]) {
 
@@ -59,7 +60,7 @@ int main(int argc, char *argv[]) {
 	for (int i = 0; i < (buf.st_size / 4); i++) {
 		bprogram[i] = be32toh(*(uint32_t *)(program + i * sizeof(uint32_t)));
 		//bprogram[i] = be32toh(program[i]);
-		//int p = (bprogam[i] >> 21) & 0x7ff;
+		//int p = (bprogram[i] >> 21) & 0x7ff;
 		//printf("%d\n", p);
 		//printf("%d\n", bprogram[i]);
 		decode_instruction(bprogram[i]);
@@ -90,12 +91,11 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 
-void decode_instruction(uint32_t instruction) {
-//void decode_instruction(int instruction) {
-	printf("original: 0x%08X\n", instruction);
-	int op_code = (instruction >> 21) & 0x7FF;
-	printf("0x%X\n", op_code);
-	//printf("%d\n", op_code);
+//void decode_instruction(uint32_t instruction) {
+void decode_instruction(intfloat instruction) {
+	printf("%d\n", instruction);
+	uint32_t p = (instruction >> 1) & 0xff;
+	printf("p equals: %d\n", p);
 }
 
 
