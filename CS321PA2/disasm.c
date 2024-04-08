@@ -8,17 +8,24 @@
 #include <sys/mman.h>
 #include <endian.h>
 
+typedef union {
+	int i;
+	float f;
+} intfloat;
+
 // declare function
 //void decode_instruction(int instruction);
 //void decode_instruction(uint32_t instruction);
 void decode_instruction(intfloat instruction);
+
+void float_bits(intfloat i);
 
 int main(int argc, char *argv[]) {
 
 	int fd;
 	struct stat buf;
 	char *program;
-	uint32_t *bprogram;
+	intfloat *bprogram;
 	//int *bprogram;
 	
 	// check for correct # of arguments
@@ -58,12 +65,10 @@ int main(int argc, char *argv[]) {
 
 	// convert to 32 bit int
 	for (int i = 0; i < (buf.st_size / 4); i++) {
-		bprogram[i] = be32toh(*(uint32_t *)(program + i * sizeof(uint32_t)));
-		//bprogram[i] = be32toh(program[i]);
-		//int p = (bprogram[i] >> 21) & 0x7ff;
-		//printf("%d\n", p);
-		//printf("%d\n", bprogram[i]);
-		decode_instruction(bprogram[i]);
+		program[i] = be32toh(program[i]);
+		intfloat temp;
+		i = program[i];
+		float_bits(i);
 	}
 
 	if (program == NULL) {
@@ -80,22 +85,27 @@ int main(int argc, char *argv[]) {
 		close(fd);
 		return 1;
 	}
-
 	
 	free(bprogram);
 	munmap(program, buf.st_size);
 	close(fd);
-
-	
 
 	return 0;
 }
 
 //void decode_instruction(uint32_t instruction) {
 void decode_instruction(intfloat instruction) {
-	printf("%d\n", instruction);
-	uint32_t p = (instruction >> 1) & 0xff;
-	printf("p equals: %d\n", p);
+	//printf("%d\n", instruction);
+	//uint32_t p = (instruction >> 1) & 0xff;
+	//printf("p equals: %d\n", p);
+}
+
+void float_bits(intfloat i) {
+	int j;
+	for (j = 31; j >= 0; j--) {
+		printf("%d", (i.i >> j) & 0x1);
+	}
+	printf("\n");
 }
 
 
