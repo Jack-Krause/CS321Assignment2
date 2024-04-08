@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
 	int fd;
 	struct stat buf;
 	char *program;
-	intfloat *bprogram;
+	uint32_t *bprogram;
 	//int *bprogram;
 	
 	// check for correct # of arguments
@@ -65,9 +65,9 @@ int main(int argc, char *argv[]) {
 
 	// convert to 32 bit int
 	for (int i = 0; i < (buf.st_size / 4); i++) {
-		program[i] = be32toh(program[i]);
+		bprogram[i] = be32toh(program[i]);
 		intfloat temp;
-		temp.i = program[i];
+	        temp.i = bprogram[i];
 		float_bits(temp);
 	}
 
