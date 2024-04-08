@@ -9,8 +9,8 @@
 #include <endian.h>
 
 // declare function
-void decode_instruction(int instruction);
-//void decode_instruction(uint32_t instruction);
+//void decode_instruction(int instruction);
+void decode_instruction(uint32_t instruction);
 
 int main(int argc, char *argv[]) {
 
@@ -90,10 +90,12 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 
-//void decode_instruction(uint32_t instruction) {
-void decode_instruction(int instruction) {
-	int op_code = (instruction >> 21);
-	printf("%d\n", op_code);
+void decode_instruction(uint32_t instruction) {
+//void decode_instruction(int instruction) {
+	printf("original: 0x%08X\n", instruction);
+	int op_code = (instruction >> 21) & 0x7FF;
+	printf("0x%X\n", op_code);
+	//printf("%d\n", op_code);
 }
 
 
