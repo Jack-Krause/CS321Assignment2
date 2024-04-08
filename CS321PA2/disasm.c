@@ -24,9 +24,7 @@ int main(int argc, char *argv[]) {
 
 	int fd;
 	struct stat buf;
-	char *program;
-	uint32_t *bprogram;
-	//int *bprogram;
+	uint32_t *program;
 	
 	// check for correct # of arguments
 	if (argc != 2) {
@@ -56,19 +54,15 @@ int main(int argc, char *argv[]) {
 			fd,
 			0
 		       );
-
-	// allocate memory for array of elements from file
-	// buf.st / 4 = # of 32-bit integers
-	bprogram = calloc(buf.st_size / 4, sizeof(*bprogram));
 	
 	printf("bprogramsize: %d\n", (buf.st_size / 4));
 
 	// convert to 32 bit int
 	for (int i = 0; i < (buf.st_size / 4); i++) {
-		bprogram[i] = be32toh(program[i]);
-		intfloat temp;
-	        temp.i = bprogram[i];
-		float_bits(temp);
+		uint32_t temp = be32toh(program[i]);
+		intfloat t;
+	        t.i = temp;
+		float_bits(t);
 	}
 
 	if (program == NULL) {
@@ -76,17 +70,7 @@ int main(int argc, char *argv[]) {
 		close(fd);
 		return 1;
 	}
-
-	// read contents of file
-	ssize_t bytes_read = read(fd, program, buf.st_size);
-	if (bytes_read == -1) {
-		perror("Error reading file");
-		free(program);
-		close(fd);
-		return 1;
-	}
 	
-	free(bprogram);
 	munmap(program, buf.st_size);
 	close(fd);
 
