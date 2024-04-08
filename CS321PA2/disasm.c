@@ -20,6 +20,8 @@ void decode_instruction(intfloat instruction);
 
 void float_bits(intfloat i);
 
+void show_ieee754(intfloat i);
+
 int main(int argc, char *argv[]) {
 
 	int fd;
@@ -63,6 +65,7 @@ int main(int argc, char *argv[]) {
 		intfloat t;
 	        t.i = temp;
 		float_bits(t);
+		show_ieee754(t);
 	}
 
 	if (program == NULL) {
@@ -90,6 +93,11 @@ void float_bits(intfloat i) {
 		printf("%d", (i.i >> j) & 0x1);
 	}
 	printf("\n");
+}
+
+void show_ieee754(intfloat i) {
+	printf("f: %f\ts: %d\tbe: %d\tue: %d\tm: %#x\n", i.f,
+			(i.i >> 31) * 0x1, (i.i >> 23) & 0xff,(i.i >> 23) & 0xff) - 127, (i.i & 0x7fffff);
 }
 
 
