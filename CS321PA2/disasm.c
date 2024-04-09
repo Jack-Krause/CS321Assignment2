@@ -13,11 +13,14 @@ typedef union {
 	float f;
 } intfloat;
 
+typedef void (*instruction_function)();
+
 typedef struct {
 	char mnemonic[10];
-	char ref[20];
+	instruction_function f;
 	uint32_t opcode;
 } instruction_t;
+
 
 // declare function
 //void decode_instruction(int instruction);
@@ -29,6 +32,16 @@ void float_bits(intfloat i);
 void show_ieee754(intfloat i);
 
 void show_r_format(intfloat i);
+
+void ADD_inst();
+void ADDI_inst();
+void ADDIS_inst();
+
+instruction_t instruction[] = {
+	{ "ADD",     ADD_inst,    0b10001011000 },
+  	{ "ADDI",    ADDI_inst,   0b1001000100  },
+  	{ "ADDIS",   ADDIS_inst,  0b1011000100  },
+};
 
 int main(int argc, char *argv[]) {
 
@@ -117,6 +130,18 @@ void show_r_format(intfloat i) {
 		printf("%d", (i.i >> j) & 0x1);
 	}
 	printf("\n");
+}
+
+void ADD_inst() {
+
+}
+
+void ADDI_inst() {
+
+}
+
+void ADDIS_inst() {
+
 }
 
 
