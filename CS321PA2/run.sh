@@ -1,1 +1,1 @@
-./disasm $1
+./disasm four.bin $1

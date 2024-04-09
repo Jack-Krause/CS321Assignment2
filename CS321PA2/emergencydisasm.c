@@ -13,12 +13,6 @@ typedef union {
 	float f;
 } intfloat;
 
-typedef struct {
-	char mnemonic[10];
-	char ref[20];
-	uint32_t opcode;
-} instruction_t;
-
 // declare function
 //void decode_instruction(int instruction);
 //void decode_instruction(uint32_t instruction);
@@ -27,8 +21,6 @@ void decode_instruction(intfloat instruction);
 void float_bits(intfloat i);
 
 void show_ieee754(intfloat i);
-
-void show_r_format(intfloat i);
 
 int main(int argc, char *argv[]) {
 
@@ -74,8 +66,6 @@ int main(int argc, char *argv[]) {
 	        t.i = temp;
 		float_bits(t);
 		show_ieee754(t);
-		printf("\n");
-		show_r_format(t);
 	}
 
 	if (program == NULL) {
@@ -108,15 +98,6 @@ void float_bits(intfloat i) {
 void show_ieee754(intfloat i) {
 	printf("f: %f\ts: %d\tbe: %d\tue: %d\tm: %#x\n", i.f,
 			(i.i >> 31) * 0x1, (i.i >> 23) & 0xff,(i.i >> 23) & 0xff - 127, i.i & 0x7fffff);
-}
-
-void show_r_format(intfloat i) {
-	int j;
-	printf("First 11 bits: ");
-	for (j = 31; j >= 21; j--) {
-		printf("%d", (i.i >> j) & 0x1);
-	}
-	printf("\n");
 }
 
 
