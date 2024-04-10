@@ -1,1 +1,1 @@
-./disasm four.bin $1
+./disasm testAdd.legv8asm.machine $1
