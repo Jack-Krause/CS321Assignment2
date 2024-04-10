@@ -20,10 +20,10 @@ typedef struct {
 } instruction_t;
 
 
-// declare function
-//void decode_instruction(int instruction);
-//void decode_instruction(uint32_t instruction);
+// declare functions
 void decode_instruction(intfloat instruction);
+
+instruction_t* find_instruction(intfloat opcode);
 
 void float_bits(intfloat i);
 
@@ -102,14 +102,29 @@ int main(int argc, char *argv[]) {
 
 //void decode_instruction(uint32_t instruction) {
 void decode_instruction(intfloat instruction) {
-	intfloat format;
+	intfloat opcode;
 	
-       	format.i = (instruction.i >> 21) & 0x7FF;
+       	opcode.i = (instruction.i >> 21) & 0x7FF;
 	int j;
 	for (j = 10; j >= 0; j--) {
-		printf("%d", (format.i >> j) & 0x1);
+		printf("%d", (opcode.i >> j) & 0x1);
 	}
 	printf("\n");
+
+	instruction_t* inst;
+	inst = find_instruction(opcode);
+	printf("%s\n", inst->mnemonic);
+}
+
+instruction_t* find_instruction(intfloat opcode) {
+	for (int i = 0; i < sizeof(instruction) / sizeof(instruction[0]);
+		       	++i) 
+	{
+		if (instruction[i].opcode == opcode.i) {
+			return &instruction[i];
+		}
+	}
+	return NULL;
 }
 
 void float_bits(intfloat i) {
