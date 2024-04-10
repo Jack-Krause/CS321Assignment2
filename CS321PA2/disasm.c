@@ -111,8 +111,7 @@ void decode_instruction(intfloat inp_inst) {
 	}
 	printf("\n");
 
-	instruction_t inst;
-	inst = find_instruction(opcode);
+	instruction_t inst = find_instruction(opcode);
 	printf("%s\n", inst.mnemonic);
 }
 
