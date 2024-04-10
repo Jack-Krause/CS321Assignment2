@@ -29,7 +29,7 @@ void float_bits(intfloat i);
 
 void show_ieee754(intfloat i);
 
-void show_r_format(intfloat i);
+void get_format(intfloat i);
 
 void ADD_inst(intfloat instruction);
 void ADDI_inst(intfloat instruction);
@@ -84,9 +84,8 @@ int main(int argc, char *argv[]) {
 		intfloat t;
 	        t.i = temp;
 		float_bits(t);
-		show_ieee754(t);
+		decode_instruction(t);
 		printf("\n");
-		show_r_format(t);
 	}
 
 	if (program == NULL) {
@@ -103,7 +102,14 @@ int main(int argc, char *argv[]) {
 
 //void decode_instruction(uint32_t instruction) {
 void decode_instruction(intfloat instruction) {
-
+	intfloat format;
+	
+       	format.i = (instruction.i >> 21) & 0x7FF;
+	int j;
+	for (j = 10; j >= 0; j--) {
+		printf("%d", (format.i >> j) & 0x1);
+	}
+	printf("\n");
 }
 
 void float_bits(intfloat i) {
@@ -119,7 +125,7 @@ void show_ieee754(intfloat i) {
 			(i.i >> 31) * 0x1, (i.i >> 23) & 0xff,(i.i >> 23) & 0xff - 127, i.i & 0x7fffff);
 }
 
-void show_r_format(intfloat i) {
+void get_format(intfloat i) {
 	int j;
 	printf("First 11 bits: ");
 	for (j = 31; j >= 21; j--) {
