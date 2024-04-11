@@ -92,13 +92,6 @@ int main(int argc, char *argv[]) {
 		close(fd);
 		return 1;
 	}
-
-	//DELETE
-	instruction_t one = instruction[0];
-	instruction_t two = instruction[1];
-	printf("one %s\n", one.mnemonic);
-	printf("two %s\n", two.mnemonic);
-
 	
 	munmap(program, buf.st_size);
 	close(fd);
@@ -112,7 +105,6 @@ void decode_instruction(intfloat inp_inst) {
 	int j;
 
        	opcode.i = (inp_inst.i >> 21) & 0x7FF;
-	printf("------\n");
 	for (j = 10; j >= 0; j--) {
 		printf("%d", (opcode.i >> j) & 0x1);
 	}
@@ -128,12 +120,6 @@ instruction_t find_instruction(intfloat opcode) {
 	for (int i = 0; i < sizeof(instruction) / sizeof(instruction[0]);
 		       	i++) 
 	{
-		printf("inner loop: \n");
-		for (int j = 10; j >= 0; j--) {
-			printf("%d", ((instruction[i].opcode << 1) >> j) & 0x1);
-		}
-		printf("\n");
-
 		if (instruction[i].opcode == opcode.i) {
 			return instruction[i];
 		} else if ((instruction[i].opcode << 1) == opcode.i) {
