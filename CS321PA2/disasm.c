@@ -9,7 +9,7 @@
 #include <endian.h>
 
 typedef union {
-	int i;
+	uint32_t i;
 	float f;
 } intfloat;
 
@@ -92,12 +92,19 @@ int main(int argc, char *argv[]) {
 		close(fd);
 		return 1;
 	}
+
+	//DELETE
+	instruction_t one = instruction[0];
+	instruction_t two = instruction[1];
+	printf("one %s\n", one.mnemonic);
+	printf("two %s\n", two.mnemonic);
+
 	
 	munmap(program, buf.st_size);
 	close(fd);
 
 	return 0;
-}
+} // end main()
 
 // break instruction into first 11 bits, retrieve the instance of this instruction
 void decode_instruction(intfloat inp_inst) {
@@ -105,22 +112,31 @@ void decode_instruction(intfloat inp_inst) {
 	int j;
 
        	opcode.i = (inp_inst.i >> 21) & 0x7FF;
-	
+	printf("------\n");
 	for (j = 10; j >= 0; j--) {
 		printf("%d", (opcode.i >> j) & 0x1);
 	}
 	printf("\n");
 
+	// call method to find the instance
 	instruction_t inst = find_instruction(opcode);
-	printf("%s\n", inst.mnemonic);
+	printf("mnemonic is: %s\n", inst.mnemonic);
 }
 
 // search global list for instance of instruction_t that matches 11 bit opcode
 instruction_t find_instruction(intfloat opcode) {
 	for (int i = 0; i < sizeof(instruction) / sizeof(instruction[0]);
-		       	++i) 
+		       	i++) 
 	{
+		printf("inner loop: \n");
+		for (int j = 10; j >= 0; j--) {
+			printf("%d", ((instruction[i].opcode << 1) >> j) & 0x1);
+		}
+		printf("\n");
+
 		if (instruction[i].opcode == opcode.i) {
+			return instruction[i];
+		} else if ((instruction[i].opcode << 1) == opcode.i) {
 			return instruction[i];
 		}
 	}
@@ -142,6 +158,7 @@ void show_ieee754(intfloat i) {
 }
 
 // print the first 11 bits opcode
+// input: 32-bit instruction
 void get_format(intfloat i) {
 	int j;
 	printf("First 11 bits: ");
