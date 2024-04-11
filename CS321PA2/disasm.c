@@ -113,6 +113,7 @@ void decode_instruction(intfloat inp_inst) {
 	// call method to find the instance
 	instruction_t inst = find_instruction(opcode);
 	printf("mnemonic is: %s\n", inst.mnemonic);
+	inst.function(inp_inst);
 }
 
 // search global list for instance of instruction_t that matches 11 bit opcode
@@ -155,15 +156,15 @@ void get_format(intfloat i) {
 }
 
 void ADD_inst(intfloat instruction) {
-
+	printf("ADD_inst function called \n");
 }
 
 void ADDI_inst(intfloat instruction) {
-
+	printf("ADDI_inst function called \n");
 }
 
 void ADDIS_inst() {
-
+	printf("ADDIS_inst function called \n");
 }
 
 
