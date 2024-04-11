@@ -21,17 +21,17 @@ typedef struct {
 
 
 // declare functions
-void decode_instruction(intfloat instruction);
+void decode_instruction(intfloat inp_inst);
 
 instruction_t find_instruction(intfloat opcode);
 
-void float_bits(intfloat i);
+void r_format(intfloat inp_inst, instruction_t instr);
 
-void show_ieee754(intfloat i);
+void float_bits(intfloat i);
 
 void get_format(intfloat i);
 
-void ADD_inst(intfloat instruction);
+void ADD_inst(intfloat inp_inst, instruction_t instr);
 void ADDI_inst(intfloat instruction);
 void ADDIS_inst();
 
@@ -113,7 +113,7 @@ void decode_instruction(intfloat inp_inst) {
 	// call method to find the instance
 	instruction_t inst = find_instruction(opcode);
 	printf("mnemonic is: %s\n", inst.mnemonic);
-	inst.function(inp_inst);
+	inst.function(inp_inst, inst);
 }
 
 // search global list for instance of instruction_t that matches 11 bit opcode
@@ -129,6 +129,10 @@ instruction_t find_instruction(intfloat opcode) {
 	}
 }
 
+void r_format(intfloat inp_inst, instruction_t instr) {
+	printf("%s\n", instr.mnemonic);
+}
+
 // print the entire 32-bit instruction
 void float_bits(intfloat i) {
 	int j;
@@ -136,12 +140,6 @@ void float_bits(intfloat i) {
 		printf("%d", (i.i >> j) & 0x1);
 	}
 	printf("\n");
-}
-
-// not useful
-void show_ieee754(intfloat i) {
-	printf("f: %f\ts: %d\tbe: %d\tue: %d\tm: %#x\n", i.f,
-			(i.i >> 31) * 0x1, (i.i >> 23) & 0xff,(i.i >> 23) & 0xff - 127, i.i & 0x7fffff);
 }
 
 // print the first 11 bits opcode
@@ -155,8 +153,9 @@ void get_format(intfloat i) {
 	printf("\n");
 }
 
-void ADD_inst(intfloat instruction) {
-	printf("ADD_inst function called \n");
+void ADD_inst(intfloat inp_inst, instruction_t instr) {
+	printf("R-format found \n");
+	r_format(inp_inst, instr);
 }
 
 void ADDI_inst(intfloat instruction) {
