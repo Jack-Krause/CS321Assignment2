@@ -26,13 +26,14 @@ void decode_instruction(intfloat inp_inst);
 instruction_t find_instruction(intfloat opcode);
 
 void r_format(intfloat inp_inst, instruction_t instr);
+void i_format(intfloat inp_inst, instruction_t instr);
 
 void float_bits(intfloat i);
 
 void get_format(intfloat i);
 
 void ADD_inst(intfloat inp_inst, instruction_t instr);
-void ADDI_inst(intfloat instruction);
+void ADDI_inst(intfloat inp_inst, instruction_t instr);
 void ADDIS_inst();
 
 instruction_t instruction[] = {
@@ -130,7 +131,25 @@ instruction_t find_instruction(intfloat opcode) {
 }
 
 void r_format(intfloat inp_inst, instruction_t instr) {
+	printf("R-format\n");
 	printf("%s\n", instr.mnemonic);
+}
+
+void i_format(intfloat inp_inst, instruction_t instr) {
+	printf("I-format\n");
+	printf("%s\n", instr.mnemonic);
+
+	intfloat immediate;
+	immediate.i = (inp_inst.i >> 10) &0xFFF;
+	printf("%d\n", immediate.i);
+
+	intfloat Rn;
+	Rn.i = (inp_inst.i >> 5) & 0x1F;
+	printf("%d\n", Rn.i);
+
+	intfloat Rd;
+	Rd.i = inp_inst.i & 0x1F;
+	printf("%d\n", Rd.i);
 }
 
 // print the entire 32-bit instruction
@@ -154,12 +173,11 @@ void get_format(intfloat i) {
 }
 
 void ADD_inst(intfloat inp_inst, instruction_t instr) {
-	printf("R-format found \n");
 	r_format(inp_inst, instr);
 }
 
-void ADDI_inst(intfloat instruction) {
-	printf("ADDI_inst function called \n");
+void ADDI_inst(intfloat inp_inst, instruction_t instr) {
+	i_format(inp_inst, instr);
 }
 
 void ADDIS_inst() {
