@@ -99,7 +99,7 @@ int main(int argc, char *argv[]) {
 	return 0;
 }
 
-//void decode_instruction(uint32_t instruction) {
+// break instruction into first 11 bits, retrieve the instance of this instruction
 void decode_instruction(intfloat inp_inst) {
 	intfloat opcode;
 	int j;
@@ -115,6 +115,7 @@ void decode_instruction(intfloat inp_inst) {
 	printf("%s\n", inst.mnemonic);
 }
 
+// search global list for instance of instruction_t that matches 11 bit opcode
 instruction_t find_instruction(intfloat opcode) {
 	for (int i = 0; i < sizeof(instruction) / sizeof(instruction[0]);
 		       	++i) 
@@ -125,6 +126,7 @@ instruction_t find_instruction(intfloat opcode) {
 	}
 }
 
+// print the entire 32-bit instruction
 void float_bits(intfloat i) {
 	int j;
 	for (j = 31; j >= 0; j--) {
@@ -133,11 +135,13 @@ void float_bits(intfloat i) {
 	printf("\n");
 }
 
+// not useful
 void show_ieee754(intfloat i) {
 	printf("f: %f\ts: %d\tbe: %d\tue: %d\tm: %#x\n", i.f,
 			(i.i >> 31) * 0x1, (i.i >> 23) & 0xff,(i.i >> 23) & 0xff - 127, i.i & 0x7fffff);
 }
 
+// print the first 11 bits opcode
 void get_format(intfloat i) {
 	int j;
 	printf("First 11 bits: ");
