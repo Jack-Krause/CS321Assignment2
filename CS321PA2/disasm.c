@@ -34,12 +34,23 @@ void get_format(intfloat i);
 
 void ADD_inst(intfloat inp_inst, instruction_t instr);
 void ADDI_inst(intfloat inp_inst, instruction_t instr);
-void ADDIS_inst();
+void ADDIS_inst(intfloat int_inst, instruction_t instr);
+void ADDS_inst(intfloat int_inst, instruction_t instr);
+void AND_inst(intfloat int_inst, instruction_t instr);
+void ANDI_inst(intfloat int_inst, instruction_t instr);
+void ANDIS_inst(intfloat int_inst, instruction_t instr);
+void ANDS_inst(intfloat int_inst, instruction_t instr);
+
 
 instruction_t instruction[] = {
 	{ "ADD",     ADD_inst,    0b10001011000 },
   	{ "ADDI",    ADDI_inst,   0b1001000100  },
   	{ "ADDIS",   ADDIS_inst,  0b1011000100  },
+	{ "ADDS",    ADDS_inst,   0b10101011000 },
+  	{ "AND",     AND_inst,    0b10001010000 },
+  	{ "ANDI",    ANDI_inst,   0b1001001000  },
+  	{ "ANDIS",   ANDIS_inst,  0b1111001000  },
+  	{ "ANDS",    ANDS_inst,   0b1110101000  }
 };
 
 int main(int argc, char *argv[]) {
@@ -132,21 +143,48 @@ instruction_t find_instruction(intfloat opcode) {
 
 void r_format(intfloat inp_inst, instruction_t instr) {
 	printf("R-format\n");
-	printf("%s\n", instr.mnemonic);
-}
 
-void i_format(intfloat inp_inst, instruction_t instr) {
-	printf("I-format\n");
+	// opcode: first 11 bits [31-21]
 	printf("%s\n", instr.mnemonic);
 
-	intfloat immediate;
-	immediate.i = (inp_inst.i >> 10) &0xFFF;
-	printf("%d\n", immediate.i);
+	// Rm: second register source operand: 5 bits [20-16]
+	intfloat Rm;
+	Rm.i = (inp_inst.i >> 16) & 0x1F;
+	printf("%d\n", Rm.i);
 
+	// shamt: shift amount: 6 bits [15-10]
+	intfloat shamt;
+	shamt.i = (inp_inst.i >> 10) & 0xF;
+	printf("%d\n", shamt.i);
+
+	// Rn: first register source operand: 5 bits [9-5]
 	intfloat Rn;
 	Rn.i = (inp_inst.i >> 5) & 0x1F;
 	printf("%d\n", Rn.i);
 
+	// Rd: register destination: 5 bits [4-0]
+	intfloat Rd;
+	Rd.i = inp_inst.i & 0x1F;
+	printf("%d\n", Rd.i);
+}
+
+void i_format(intfloat inp_inst, instruction_t instr) {
+	printf("I-format\n");
+
+	// opcode: first 10 bits [31-22]
+	printf("%s\n", instr.mnemonic);
+	
+	// immediate value: 12 bits [21-10]
+	intfloat immediate;
+	immediate.i = (inp_inst.i >> 10) &0xFFF;
+	printf("%d\n", immediate.i);
+
+	// Rn: source register: 5 bits [9-5]
+	intfloat Rn;
+	Rn.i = (inp_inst.i >> 5) & 0x1F;
+	printf("%d\n", Rn.i);
+	
+	// Rd: destination register: 5 bits [4-0]
 	intfloat Rd;
 	Rd.i = inp_inst.i & 0x1F;
 	printf("%d\n", Rd.i);
@@ -180,8 +218,28 @@ void ADDI_inst(intfloat inp_inst, instruction_t instr) {
 	i_format(inp_inst, instr);
 }
 
-void ADDIS_inst() {
-	printf("ADDIS_inst function called \n");
+void ADDIS_inst(intfloat inp_inst, instruction_t instr) {
+	i_format(inp_inst, instr);
+}
+
+void ADDS_inst(intfloat inp_inst, instruction_t instr) {
+	r_format(inp_inst, instr);
+}
+
+void AND_inst(intfloat inp_inst, instruction_t instr) {
+	r_format(inp_inst, instr);
+}
+
+void ANDI_inst(intfloat inp_inst, instruction_t instr) {
+	i_format(inp_inst, instr);
+}
+
+void ANDIS_inst(intfloat inp_inst, instruction_t instr) {
+	i_format(inp_inst, instr);
+}
+
+void ANDS_inst(intfloat inp_inst, instruction_t instr) {
+	r_format(inp_inst, instr);
 }
 
 
