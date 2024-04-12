@@ -145,49 +145,53 @@ void r_format(intfloat inp_inst, instruction_t instr) {
 	printf("R-format\n");
 
 	// opcode: first 11 bits [31-21]
-	printf("%s\n", instr.mnemonic);
+	printf("%s ", instr.mnemonic);
 
 	// Rm: second register source operand: 5 bits [20-16]
 	intfloat Rm;
 	Rm.i = (inp_inst.i >> 16) & 0x1F;
-	printf("%d\n", Rm.i);
+	//printf("%d ", Rm.i);
 
 	// shamt: shift amount: 6 bits [15-10]
 	intfloat shamt;
 	shamt.i = (inp_inst.i >> 10) & 0xF;
-	printf("%d\n", shamt.i);
+	//printf("%d ", shamt.i);
 
 	// Rn: first register source operand: 5 bits [9-5]
 	intfloat Rn;
 	Rn.i = (inp_inst.i >> 5) & 0x1F;
-	printf("%d\n", Rn.i);
+	//printf("%d ", Rn.i);
 
 	// Rd: register destination: 5 bits [4-0]
 	intfloat Rd;
 	Rd.i = inp_inst.i & 0x1F;
-	printf("%d\n", Rd.i);
+	//printf("%d\n", Rd.i);
+
+	printf("X%d, X%d, X%d\n", Rd.i, Rn.i, Rm.i);
 }
 
 void i_format(intfloat inp_inst, instruction_t instr) {
 	printf("I-format\n");
 
 	// opcode: first 10 bits [31-22]
-	printf("%s\n", instr.mnemonic);
+	printf("%s ", instr.mnemonic);
 	
 	// immediate value: 12 bits [21-10]
 	intfloat immediate;
 	immediate.i = (inp_inst.i >> 10) &0xFFF;
-	printf("%d\n", immediate.i);
+	//printf("%d ", immediate.i);
 
 	// Rn: source register: 5 bits [9-5]
 	intfloat Rn;
 	Rn.i = (inp_inst.i >> 5) & 0x1F;
-	printf("%d\n", Rn.i);
+	//printf("%d ", Rn.i);
 	
 	// Rd: destination register: 5 bits [4-0]
 	intfloat Rd;
 	Rd.i = inp_inst.i & 0x1F;
-	printf("%d\n", Rd.i);
+	//printf("%d\n", Rd.i);
+	
+	printf("X%d, X%d #%d\n", Rd.i, Rn.i, immediate.i);
 }
 
 // print the entire 32-bit instruction
