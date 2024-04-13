@@ -20,9 +20,11 @@ typedef struct {
 } instruction_t;
 
 // declare functions
-void decode_instruction(intfloat inp_inst);
+void decode_instruction(intfloat inp_inst, int num_opcodes);
 
 instruction_t find_instruction(intfloat opcode);
+
+int binary_search(intfloat opcode, int left, int right);
 
 void r_format(intfloat inp_inst, instruction_t instr);
 void i_format(intfloat inp_inst, instruction_t instr);
@@ -90,14 +92,14 @@ int main(int argc, char *argv[]) {
 			0
 		       );
 
-	int op_n = sizeof(instruction) / sizeof(instruction[0]);
-	printf("N is: %d\n", op_n);
+	int num_opcodes = sizeof(instruction) / sizeof(instruction[0]);
+	printf("N is: %d\n", num_opcodes);
 
 	// sort opcodes for loopup time of O(log n) with binary search
 	// might implement a hashtable if time
-	quick_sort(0, op_n -1);
+	quick_sort(0, num_opcodes -1);
 
-	for (int i = 0; i < op_n; i++) {
+	for (int i = 0; i < num_opcodes; i++) {
 		printf("Sorted: %s ", instruction[i].mnemonic);
 		for (int k = 10; k >= 0; k--) {
 			printf("%d", (instruction[i].opcode >> k) &0x1);
@@ -112,7 +114,7 @@ int main(int argc, char *argv[]) {
 		intfloat t;
 	        t.i = temp;
 		float_bits(t);
-		decode_instruction(t);
+		decode_instruction(t, num_opcodes);
 		printf("\n");
 	}
 
@@ -129,7 +131,7 @@ int main(int argc, char *argv[]) {
 } // end main()
 
 // break instruction into first 11 bits, retrieve the instance of this instruction
-void decode_instruction(intfloat inp_inst) {
+void decode_instruction(intfloat inp_inst, int num_opcodes) {
 	intfloat opcode;
 	int j;
 
@@ -140,9 +142,15 @@ void decode_instruction(intfloat inp_inst) {
 	printf("\n");
 
 	// call method to find the instance
-	instruction_t inst = find_instruction(opcode);
-	printf("mnemonic is: %s\n", inst.mnemonic);
-	inst.function(inp_inst, inst);
+	// if idx >= 0 then success, call output function of LEGv8 instruction
+	int idx_found = binary_search(opcode, 0, num_opcodes - 1);
+	if (idx_found > -1) {
+		instruction_t inst_found = instruction[idx_found];
+		printf("mnemonic is: %s\n", inst_found.mnemonic);
+		inst_found.function(inp_inst, inst_found);
+	} else {
+		printf("ERROR instruction not found in opcodes %s\n");
+	}
 }
 
 // search global list for instance of instruction_t that matches 11 bit opcode
@@ -156,6 +164,25 @@ instruction_t find_instruction(intfloat opcode) {
 			return instruction[i];
 		}
 	}
+}
+
+// binary search to find index of instruction matching the opcode
+// returns: index in instruction or -1 else
+int binary_search(intfloat opcode, int left, int right) {
+	while (left <= right) {
+		int mid = left + (right - 1) / 2;
+
+		if (instruction[mid].opcode == opcode.i) {
+			return mid;
+		}
+
+		if (instruction[mid].opcode < opcode.i) {
+			left = mid + 1;
+		} else {
+			right = mid - 1;
+		}
+	}
+	return -1;
 }
 
 void r_format(intfloat inp_inst, instruction_t instr) {
@@ -208,7 +235,7 @@ void i_format(intfloat inp_inst, instruction_t instr) {
 	Rd.i = inp_inst.i & 0x1F;
 	//printf("%d\n", Rd.i);
 	
-	printf("X%d, X%d #%d\n", Rd.i, Rn.i, immediate.i);
+	printf("X%d, X%d, #%d\n", Rd.i, Rn.i, immediate.i);
 }
 
 int partition(int first, int last) {
