@@ -224,7 +224,9 @@ int partition(int first, int last) {
 			instruction[j] = temp;
 		}
 	}
-	instruction[i+1] = p; // insert pivot into sorted location
+	instruction_t temp = instruction[i + 1];
+	instruction[i + 1] = p; // insert pivot into sorted location
+	instruction[last] = temp;
 	return i+1; // location of sorted location of p
 }
 
