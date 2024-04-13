@@ -19,7 +19,6 @@ typedef struct {
 	uint32_t opcode;
 } instruction_t;
 
-
 // declare functions
 void decode_instruction(intfloat inp_inst);
 
@@ -27,6 +26,10 @@ instruction_t find_instruction(intfloat opcode);
 
 void r_format(intfloat inp_inst, instruction_t instr);
 void i_format(intfloat inp_inst, instruction_t instr);
+
+int partition(int first, int last);
+
+void quick_sort(int first, int last);
 
 void float_bits(intfloat i);
 
@@ -86,9 +89,23 @@ int main(int argc, char *argv[]) {
 			fd,
 			0
 		       );
-	
-	printf("bprogramsize: %d\n", (buf.st_size / 4));
 
+	int op_n = sizeof(instruction) / sizeof(instruction[0]);
+	printf("N is: %d\n", op_n);
+
+	// sort opcodes for loopup time of O(log n) with binary search
+	// might implement a hashtable if time
+	quick_sort(0, op_n -1);
+
+	for (int i = 0; i < op_n; i++) {
+		printf("Sorted: %s ", instruction[i].mnemonic);
+		for (int k = 10; k >= 0; k--) {
+			printf("%d", (instruction[i].opcode >> k) &0x1);
+		}
+		printf(" %d", instruction[i].opcode);
+		printf("\n");
+	}
+	
 	// convert to 32 bit int
 	for (int i = 0; i < (buf.st_size / 4); i++) {
 		uint32_t temp = be32toh(program[i]);
@@ -192,6 +209,32 @@ void i_format(intfloat inp_inst, instruction_t instr) {
 	//printf("%d\n", Rd.i);
 	
 	printf("X%d, X%d #%d\n", Rd.i, Rn.i, immediate.i);
+}
+
+int partition(int first, int last) {
+	instruction_t p = instruction[last];
+	uint32_t pivot = p.opcode;
+	int i = first - 1;
+
+	for (int j = first; j < last; j++) {
+		if (instruction[j].opcode <= pivot) {
+			i++;
+			instruction_t temp = instruction[i];
+			instruction[i] = instruction[j];
+			instruction[j] = temp;
+		}
+	}
+	instruction[i+1] = p; // insert pivot into sorted location
+	return i+1; // location of sorted location of p
+}
+
+void quick_sort(int first, int last) {
+	if (first < last) {
+		int p = partition(first, last);
+
+		quick_sort(first, p - 1);
+		quick_sort(p + 1, last);
+	}	
 }
 
 // print the entire 32-bit instruction
