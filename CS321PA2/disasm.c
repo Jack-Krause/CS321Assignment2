@@ -22,8 +22,6 @@ typedef struct {
 // declare functions
 void decode_instruction(intfloat inp_inst, int num_opcodes);
 
-instruction_t find_instruction(intfloat opcode);
-
 int binary_search(intfloat opcode, int left, int right);
 
 void r_format(intfloat inp_inst, instruction_t instr);
@@ -156,8 +154,9 @@ void decode_instruction(intfloat inp_inst, int num_opcodes) {
 	int idx_retry = binary_search(opcode, 0, num_opcodes-1);
 	if (idx_retry > -1) {
 		instruction_t inst_found = instruction[idx_retry];
-		printf("mnemonic is: $s\n", inst_found.mnemonic);
+		printf("mnemonic is: %s\n", inst_found.mnemonic);
 		inst_found.function(inp_inst, inst_found);
+		return;
 	}
 
 	// else: the opcode was not found
@@ -170,25 +169,12 @@ void decode_instruction(intfloat inp_inst, int num_opcodes) {
 	printf("ERROR instruction not found in opcodes\n"); 
 }
 
-// search global list for instance of instruction_t that matches 11 bit opcode
-instruction_t find_instruction(intfloat opcode) {
-	for (int i = 0; i < sizeof(instruction) / sizeof(instruction[0]);
-		       	i++) 
-	{
-		if (instruction[i].opcode == opcode.i) {
-			return instruction[i];
-		} else if ((instruction[i].opcode << 1) == opcode.i) {
-			return instruction[i];
-		}
-	}
-}
-
 // binary search to find index of instruction matching the opcode
 // returns: index in instruction or -1 else
 int binary_search(intfloat opcode, int left, int right) {
 	while (left <= right) {
 		int mid = left + (right - left) / 2;
-
+		
 		if (instruction[mid].opcode == opcode.i) {
 			return mid;
 		}
@@ -199,6 +185,7 @@ int binary_search(intfloat opcode, int left, int right) {
 			right = mid - 1;
 		}
 	}
+
 	return -1;
 }
 
