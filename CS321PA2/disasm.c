@@ -95,14 +95,14 @@ int main(int argc, char *argv[]) {
 	int num_opcodes = sizeof(instruction) / sizeof(instruction[0]);
 	printf("N is: %d\n", num_opcodes);
 
-	// sort opcodes for loopup time of O(log n) with binary search
+	// sort opcodes for lookup time of O(log n) with binary search
 	// might implement a hashtable if time
 	quick_sort(0, num_opcodes -1);
 
 	for (int i = 0; i < num_opcodes; i++) {
 		printf("Sorted: %s ", instruction[i].mnemonic);
 		for (int k = 10; k >= 0; k--) {
-			printf("%d", (instruction[i].opcode >> k) &0x1);
+			printf("%d", (instruction[i].opcode >> k) & 0x1);
 		}
 		printf(" %d", instruction[i].opcode);
 		printf("\n");
@@ -143,14 +143,31 @@ void decode_instruction(intfloat inp_inst, int num_opcodes) {
 
 	// call method to find the instance
 	// if idx >= 0 then success, call output function of LEGv8 instruction
-	int idx_found = binary_search(opcode, 0, num_opcodes - 1);
+	int idx_found = binary_search(opcode, 0, num_opcodes-1);
 	if (idx_found > -1) {
 		instruction_t inst_found = instruction[idx_found];
 		printf("mnemonic is: %s\n", inst_found.mnemonic);
 		inst_found.function(inp_inst, inst_found);
-	} else {
-		printf("ERROR instruction not found in opcodes %s\n");
+		return;
 	}
+
+	// try for 10 bit opcodes
+	opcode.i = opcode.i >> 1;
+	int idx_retry = binary_search(opcode, 0, num_opcodes-1);
+	if (idx_retry > -1) {
+		instruction_t inst_found = instruction[idx_retry];
+		printf("mnemonic is: $s\n", inst_found.mnemonic);
+		inst_found.function(inp_inst, inst_found);
+	}
+
+	// else: the opcode was not found
+	printf("%d\n", opcode);
+
+	for (int b = 10; b >= 0; b--) {
+		printf("%d", (opcode.i >> b) & 0x1);
+	}
+	printf("\n");
+	printf("ERROR instruction not found in opcodes\n"); 
 }
 
 // search global list for instance of instruction_t that matches 11 bit opcode
@@ -170,7 +187,7 @@ instruction_t find_instruction(intfloat opcode) {
 // returns: index in instruction or -1 else
 int binary_search(intfloat opcode, int left, int right) {
 	while (left <= right) {
-		int mid = left + (right - 1) / 2;
+		int mid = left + (right - left) / 2;
 
 		if (instruction[mid].opcode == opcode.i) {
 			return mid;
@@ -244,7 +261,7 @@ int partition(int first, int last) {
 	int i = first - 1;
 
 	for (int j = first; j < last; j++) {
-		if (instruction[j].opcode <= pivot) {
+		if (instruction[j].opcode < pivot) {
 			i++;
 			instruction_t temp = instruction[i];
 			instruction[i] = instruction[j];
