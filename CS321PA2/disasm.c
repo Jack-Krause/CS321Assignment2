@@ -145,47 +145,41 @@ int main(int argc, char *argv[]) {
 // break instruction into first 11 bits, retrieve the instance of this instruction
 void decode_instruction(intfloat inp_inst, int num_opcodes) {
 	intfloat opcode;
-	int j;
 
-	// try shorter opcodes first: B-type and CB-type:
-	opcode.i = inp_inst.i & 0x3F; // first 6 bits to check for B-type
-	
-	// call method to find the instance
-	// if idx >= 0 then success, call output function of LEGv8 instruction
-       	opcode.i = (inp_inst.i >> 21) & 0x7FF;
-	for (j = 10; j >= 0; j--) {
-		printf("%d", (opcode.i >> j) & 0x1);
+	for (int j = 31; j >= 21; j--) {
+		printf("%d", (inp_inst.i >> j) & 0x1);
 	}
-	printf("\n");
+	printf(" %d\n", inp_inst.i >> 21);
 
-	// call method to find the instance
-	// if idx >= 0 then success, call output function of LEGv8 instruction
+	// try increasingly longer opcodes
+	opcode.i = inp_inst.i >> 27; // first 6 bits to check for B-type
 	int idx_found = binary_search(opcode, 0, num_opcodes-1);
+	
+	// check if 6 bit opcode found, otherwise search for 8 bit opcode
+	if (idx_found == -1) {
+		opcode.i = inp_inst.i >> 24; // first 8 bits for CB-type
+		idx_found = binary_search(opcode, 0, num_opcodes-1);
+	}
+	// check if 8 bit opcode found, otherwise search for 10 bit opcode
+	if (idx_found == -1) {
+		opcode.i = inp_inst.i >> 22; // first 10 bit opcodes for I-type
+		idx_found = binary_search(opcode, 0, num_opcodes-1);
+	}
+	// check if 10 bit opcode found, otherwise search for 11 bit opcode
+	if (idx_found == -1) {
+		opcode.i = inp_inst.i >> 21;
+		idx_found = binary_search(opcode, 0, num_opcodes-1);
+	}
+	
+	// if idx >= 0 then success, call output function of LEGv8 instruction
 	if (idx_found > -1) {
 		instruction_t inst_found = instruction[idx_found];
 		printf("mnemonic is: %s\n", inst_found.mnemonic);
+		// call instance function
 		inst_found.function(inp_inst, inst_found);
-		return;
-	}
-
-	// try for 10 bit opcodes
-	opcode.i = opcode.i >> 1;
-	int idx_retry = binary_search(opcode, 0, num_opcodes-1);
-	if (idx_retry > -1) {
-		instruction_t inst_found = instruction[idx_retry];
-		printf("mnemonic is: %s\n", inst_found.mnemonic);
-		inst_found.function(inp_inst, inst_found);
-		return;
-	}
-
-	// else: the opcode was not found
-	printf("%d\n", opcode);
-
-	for (int b = 10; b >= 0; b--) {
-		printf("%d", (opcode.i >> b) & 0x1);
-	}
-	printf("\n");
-	printf("ERROR instruction not found in opcodes\n"); 
+	} else { // the instruction was not found
+		printf("ERROR instruction not found in opcodes\n");
+	}	
 }
 
 // binary search to find index of instruction matching the opcode
