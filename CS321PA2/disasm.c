@@ -24,8 +24,10 @@ void decode_instruction(intfloat inp_inst, int num_opcodes);
 
 int binary_search(intfloat opcode, int left, int right);
 
+// callable methods for output of instruction
 void r_format(intfloat inp_inst, instruction_t instr);
 void i_format(intfloat inp_inst, instruction_t instr);
+void b_format(intfloat inp_inst, instruction_t instr);
 
 int partition(int first, int last);
 
@@ -35,14 +37,21 @@ void float_bits(intfloat i);
 
 void get_format(intfloat i);
 
+// methods for specific instances of required instructions
+// these call their respective LEGv8 instruction type or format
 void ADD_inst(intfloat inp_inst, instruction_t instr);
 void ADDI_inst(intfloat inp_inst, instruction_t instr);
-void ADDIS_inst(intfloat int_inst, instruction_t instr);
-void ADDS_inst(intfloat int_inst, instruction_t instr);
-void AND_inst(intfloat int_inst, instruction_t instr);
-void ANDI_inst(intfloat int_inst, instruction_t instr);
-void ANDIS_inst(intfloat int_inst, instruction_t instr);
-void ANDS_inst(intfloat int_inst, instruction_t instr);
+void ADDIS_inst(intfloat inp__inst, instruction_t instr);
+void ADDS_inst(intfloat inp_inst, instruction_t instr);
+void AND_inst(intfloat inp_inst, instruction_t instr);
+void ANDI_inst(intfloat inp_inst, instruction_t instr);
+void ANDIS_inst(intfloat inp_inst, instruction_t instr);
+void ANDS_inst(intfloat inp_inst, instruction_t instr);
+void B_inst(intfloat inp_inst, instruction_t instr);
+void BL_inst(intfloat inp_inst, instruction_t instr);
+void BR_inst(intfloat inp_inst, instruction_t instr);
+void CBNZ_inst(intfloat inp_inst, instruction_t instr);
+void CBZ_inst(intfloat inp_inst, instruction_t instr);
 
 
 instruction_t instruction[] = {
@@ -53,7 +62,12 @@ instruction_t instruction[] = {
   	{ "AND",     AND_inst,    0b10001010000 },
   	{ "ANDI",    ANDI_inst,   0b1001001000  },
   	{ "ANDIS",   ANDIS_inst,  0b1111001000  },
-  	{ "ANDS",    ANDS_inst,   0b1110101000  }
+  	{ "ANDS",    ANDS_inst,   0b1110101000  },
+	{ "B",       B_inst,      0b000101      },
+ 	{ "BL",      BL_inst,     0b100101      },
+ 	{ "BR",      BR_inst,     0b11010110000 },
+ 	{ "CBNZ",    CBNZ_inst,   0b10110101    },
+ 	{ "CBZ",     CBZ_inst,    0b10110100    }
 };
 
 int main(int argc, char *argv[]) {
@@ -133,6 +147,22 @@ void decode_instruction(intfloat inp_inst, int num_opcodes) {
 	intfloat opcode;
 	int j;
 
+       	opcode.i = (inp_inst.i >> 21) & 0x7FF;
+	for (j = 10; j >= 0; j--) {
+		printf("%d", (opcode.i >> j) & 0x1);
+	}
+	printf("\n");
+
+	// call method to find the instance
+	// if idx >= 0 then success, call output function of LEGv8 instruction
+       	opcode.i = (inp_inst.i >> 21) & 0x7FF;
+	for (j = 10; j >= 0; j--) {
+		printf("%d", (opcode.i >> j) & 0x1);
+	}
+	printf("\n");
+
+	// call method to find the instance
+	// if idx >= 0 then success, call output function of LEGv8 instruction
        	opcode.i = (inp_inst.i >> 21) & 0x7FF;
 	for (j = 10; j >= 0; j--) {
 		printf("%d", (opcode.i >> j) & 0x1);
@@ -242,6 +272,10 @@ void i_format(intfloat inp_inst, instruction_t instr) {
 	printf("X%d, X%d, #%d\n", Rd.i, Rn.i, immediate.i);
 }
 
+void b_format(intfloat inp_inst, instruction_t instr) {
+	printf("B-format\n");
+}
+
 int partition(int first, int last) {
 	instruction_t p = instruction[last];
 	uint32_t pivot = p.opcode;
@@ -321,5 +355,27 @@ void ANDIS_inst(intfloat inp_inst, instruction_t instr) {
 void ANDS_inst(intfloat inp_inst, instruction_t instr) {
 	r_format(inp_inst, instr);
 }
+
+void B_inst(intfloat inp_inst, instruction_t instr) {
+	b_format(inp_inst, instr);
+}	
+
+void BL_inst(intfloat inp_inst, instruction_t instr) {
+	b_format(inp_inst, instr);
+}
+
+void BR_inst(intfloat inp_inst, instruction_t instr) {
+	r_format(inp_inst, instr);
+}
+
+void CBNZ_inst(intfloat inp_inst, instruction_t instr) {
+	printf("CBNZ_inst\n");
+}
+
+void CBZ_inst(intfloat inp_inst, instruction_t instr) {
+	printf("CBZ_inst\n");
+}
+
+
 
 
