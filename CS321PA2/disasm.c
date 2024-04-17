@@ -147,20 +147,9 @@ void decode_instruction(intfloat inp_inst, int num_opcodes) {
 	intfloat opcode;
 	int j;
 
-       	opcode.i = (inp_inst.i >> 21) & 0x7FF;
-	for (j = 10; j >= 0; j--) {
-		printf("%d", (opcode.i >> j) & 0x1);
-	}
-	printf("\n");
-
-	// call method to find the instance
-	// if idx >= 0 then success, call output function of LEGv8 instruction
-       	opcode.i = (inp_inst.i >> 21) & 0x7FF;
-	for (j = 10; j >= 0; j--) {
-		printf("%d", (opcode.i >> j) & 0x1);
-	}
-	printf("\n");
-
+	// try shorter opcodes first: B-type and CB-type:
+	opcode.i = inp_inst.i & 0x3F; // first 6 bits to check for B-type
+	
 	// call method to find the instance
 	// if idx >= 0 then success, call output function of LEGv8 instruction
        	opcode.i = (inp_inst.i >> 21) & 0x7FF;
@@ -273,7 +262,7 @@ void i_format(intfloat inp_inst, instruction_t instr) {
 }
 
 void b_format(intfloat inp_inst, instruction_t instr) {
-	printf("B-format\n");
+	
 }
 
 int partition(int first, int last) {
@@ -370,10 +359,12 @@ void BR_inst(intfloat inp_inst, instruction_t instr) {
 
 void CBNZ_inst(intfloat inp_inst, instruction_t instr) {
 	printf("CBNZ_inst\n");
+	// CB-type
 }
 
 void CBZ_inst(intfloat inp_inst, instruction_t instr) {
 	printf("CBZ_inst\n");
+	// CB-type
 }
 
 
