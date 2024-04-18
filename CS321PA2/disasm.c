@@ -151,9 +151,11 @@ int main(int argc, char *argv[]) {
 		close(fd);
 		return 1;
 	}
-
-	printf("%s\n", instruction_list[0]);
 	
+	for (int i = 0; i < instruction_counter; i++) {
+		printf("%s\n", instruction_list[i]);
+	}
+
 	munmap(program, buf.st_size);
 	close(fd);
 
@@ -281,6 +283,11 @@ void i_format(intfloat inp_inst, instruction_t instr) {
 	//printf("%d\n", Rd.i);
 	
 	printf("X%d, X%d, #%d\n", Rd.i, Rn.i, immediate.i);
+
+	char str[50];
+	sprintf(str, "%s X%d, X%d, #%d\n", instr.mnemonic, Rd.i, Rn.i, immediate.i);
+	insert_instruction(str, instruction_counter);
+	instruction_counter++;
 }
 
 void b_format(intfloat inp_inst, instruction_t instr) {
