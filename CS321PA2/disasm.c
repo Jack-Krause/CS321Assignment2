@@ -25,6 +25,12 @@ typedef union {
 	char label[30];
 } branch_label;
 
+// counter for current line
+int instruction_counter = 0;
+// list array of instructions
+// may have to be added to, adjusted for labels and branches
+char instruction_list[1000][50];
+// for tracking of branch labels and their names
 int branch_counter = 0;
 branch_label branches[30];
 
@@ -352,6 +358,7 @@ void ANDS_inst(intfloat inp_inst, instruction_t instr) {
 
 // 
 void B_inst(intfloat inp_inst, instruction_t instr) {
+	printf("%d\n", (inp_inst.i & 0x03FFFFFF));
 	branch_label temp;
 	strcpy(temp.label, "label");
 	char strCount[5];
@@ -359,6 +366,7 @@ void B_inst(intfloat inp_inst, instruction_t instr) {
 	strncat(temp.label, strCount, 30 - strlen(temp.label) -1);
 	//sprintf(temp.label, "%d", branch_counter);
 	printf("%s\n", temp.label);
+	branch_counter++;
 	b_format(inp_inst, instr);
 }	
 
