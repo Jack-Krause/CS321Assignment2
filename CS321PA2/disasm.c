@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -18,6 +19,14 @@ typedef struct {
 	void (*function)();
 	uint32_t opcode;
 } instruction_t;
+
+typedef union {
+	uint32_t location;
+	char label[30];
+} branch_label;
+
+int branch_counter = 0;
+branch_label branches[30];
 
 // declare functions
 void decode_instruction(intfloat inp_inst, int num_opcodes);
@@ -52,7 +61,6 @@ void BL_inst(intfloat inp_inst, instruction_t instr);
 void BR_inst(intfloat inp_inst, instruction_t instr);
 void CBNZ_inst(intfloat inp_inst, instruction_t instr);
 void CBZ_inst(intfloat inp_inst, instruction_t instr);
-
 
 instruction_t instruction[] = {
 	{ "ADD",     ADD_inst,    0b10001011000 },
@@ -149,10 +157,10 @@ void decode_instruction(intfloat inp_inst, int num_opcodes) {
 	for (int j = 31; j >= 21; j--) {
 		printf("%d", (inp_inst.i >> j) & 0x1);
 	}
-	printf(" %d\n", inp_inst.i >> 21);
+	printf(" %d\n", inp_inst.i >> 26);
 
 	// try increasingly longer opcodes
-	opcode.i = inp_inst.i >> 27; // first 6 bits to check for B-type
+	opcode.i = inp_inst.i >> 26; // first 6 bits to check for B-type
 	int idx_found = binary_search(opcode, 0, num_opcodes-1);
 	
 	// check if 6 bit opcode found, otherwise search for 8 bit opcode
@@ -256,6 +264,9 @@ void i_format(intfloat inp_inst, instruction_t instr) {
 }
 
 void b_format(intfloat inp_inst, instruction_t instr) {
+	printf("B-format\n");
+	printf("%s ", instr.mnemonic);
+
 	
 }
 
@@ -339,7 +350,15 @@ void ANDS_inst(intfloat inp_inst, instruction_t instr) {
 	r_format(inp_inst, instr);
 }
 
+// 
 void B_inst(intfloat inp_inst, instruction_t instr) {
+	branch_label temp;
+	strcpy(temp.label, "label");
+	char strCount[5];
+	sprintf(strCount, "%d", branch_counter);
+	strncat(temp.label, strCount, 30 - strlen(temp.label) -1);
+	//sprintf(temp.label, "%d", branch_counter);
+	printf("%s\n", temp.label);
 	b_format(inp_inst, instr);
 }	
 
