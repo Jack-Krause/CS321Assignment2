@@ -37,8 +37,6 @@ branch_label branches[30];
 // declare functions
 void decode_instruction(intfloat inp_inst, int num_opcodes);
 
-void insert_instruction(const char* instr, int idx);
-
 int binary_search(intfloat opcode, int left, int right);
 
 // callable methods for output of instruction
@@ -151,8 +149,6 @@ int main(int argc, char *argv[]) {
 		close(fd);
 		return 1;
 	}
-
-	printf("%s\n", instruction_list[0]);
 	
 	munmap(program, buf.st_size);
 	close(fd);
@@ -198,11 +194,6 @@ void decode_instruction(intfloat inp_inst, int num_opcodes) {
 	} else { // the instruction was not found
 		printf("ERROR instruction not found in opcodes\n");
 	}	
-}
-
-
-void insert_instruction(const char* instr, int idx) {
-	strcpy(instruction_list[idx], instr);
 }
 
 // binary search to find index of instruction matching the opcode
@@ -252,11 +243,6 @@ void r_format(intfloat inp_inst, instruction_t instr) {
 	//printf("%d\n", Rd.i);
 
 	printf("X%d, X%d, X%d\n", Rd.i, Rn.i, Rm.i);
-
-	char str[50];
-	sprintf(str, "%s X%d, X%d, X%d", instr.mnemonic, Rd.i, Rn.i, Rm.i);
-	insert_instruction(str, instruction_counter);
-	instruction_counter++;	
 }
 
 void i_format(intfloat inp_inst, instruction_t instr) {
