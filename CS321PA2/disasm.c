@@ -31,7 +31,7 @@ typedef union {
 int instruction_counter = 0;
 // list array of instructions
 // may have to be added to, adjusted for labels and branches
-char instruction_list[1000][50];
+char instruction_list[1000];
 // for tracking of branch labels and their names
 int branch_counter = 0;
 branch_label branches[30];
@@ -206,7 +206,6 @@ void decode_instruction(intfloat inp_inst, int num_opcodes) {
 	}	
 }
 
-
 void insert_instruction(const char* instr, int idx) {
 	strcpy(instruction_list[idx], instr);
 }
@@ -214,10 +213,10 @@ void insert_instruction(const char* instr, int idx) {
 // shift instructions, insert "label:", add label to list
 void insert_label(branch_label branch, int idx) {
 	for (int i = idx; i < instruction_counter; i++) {
-		char* temp = instruction_list[i+1];
-		instruction_list[i+1] = *instruction_list[i];
+		char temp = instruction_list[i+1];
+		instruction_list[i+1] = instruction_list[i];
 	}
-	instruction_list[idx] = branch.label;
+	strcpy(instruction_list[idx], branch.label);
 	
 	int b = 0;
 	for (b = 0; b < branch_counter; b++) {
