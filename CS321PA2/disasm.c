@@ -20,8 +20,10 @@ typedef struct {
 	uint32_t opcode;
 } instruction_t;
 
+// absolute location is the index
+// from the instructions[] array where the label is declared
 typedef union {
-	uint32_t location;
+	int absolute_index;
 	char label[30];
 } branch_label;
 
@@ -38,6 +40,8 @@ branch_label branches[30];
 void decode_instruction(intfloat inp_inst, int num_opcodes);
 
 void insert_instruction(const char* instr, int idx);
+
+void insert_label(const char* label, int idx);
 
 int binary_search(intfloat opcode, int left, int right);
 
@@ -207,6 +211,25 @@ void insert_instruction(const char* instr, int idx) {
 	strcpy(instruction_list[idx], instr);
 }
 
+// shift instructions, insert "label:", add label to list
+void insert_label(branch_label branch, int idx) {
+	for (int i = idx; i < instruction_counter; i++) {
+		char[] temp = instruction_list[i+1];
+		instruction_list[i+1] = i;
+	}
+	instruction_list[idx] = branch.label;
+	
+	int b = 0;
+	for (b = 0; b < branch_counter; b++) {
+		if (branches[b].absolute_index == idx) {
+			return;
+		}
+	}
+
+	branches[b+1] = branch;
+	branch_counter++;
+}	
+
 // binary search to find index of instruction matching the opcode
 // returns: index in instruction or -1 else
 int binary_search(intfloat opcode, int left, int right) {
@@ -290,9 +313,25 @@ void i_format(intfloat inp_inst, instruction_t instr) {
 	instruction_counter++;
 }
 
+// 
 void b_format(intfloat inp_inst, instruction_t instr) {
 	printf("B-format\n");
 	printf("%s ", instr.mnemonic);
+	
+	branch_label temp;
+	// set location (line number) of branch label
+	uint32_t loc = inp_inst.i & 0x03FFFFFF;	
+	temp.absolute_index = instruction_counter - loc;
+	// create instance of label and add it to the output array
+	strcpy(temp.label, "label");
+	char str_count[20];
+	sprintf(str_count, "%d", branch_counter);
+	strncat(temp.label, str_count, 30 - strlen(temp.label) -1);
+	strcpy(temp.label, ":");
+	// insertion/operation 
+	// call with instruction_counter - relative_address
+	insert_branch!!!1
+	branch_counter++;
 
 	
 }
