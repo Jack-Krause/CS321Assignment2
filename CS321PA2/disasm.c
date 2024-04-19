@@ -319,21 +319,21 @@ void b_format(intfloat inp_inst, instruction_t instr) {
 	printf("%s ", instr.mnemonic);
 	
 	branch_label temp;
+	
 	// set location (line number) of branch label
 	uint32_t loc = inp_inst.i & 0x03FFFFFF;	
 	temp.absolute_index = instruction_counter - loc;
+	
 	// create instance of label and add it to the output array
 	strcpy(temp.label, "label");
 	char str_count[20];
 	sprintf(str_count, "%d", branch_counter);
 	strncat(temp.label, str_count, 30 - strlen(temp.label) -1);
 	strcpy(temp.label, ":");
+	
 	// insertion/operation 
 	// call with instruction_counter - relative_address
-	insert_branch!!!1
-	branch_counter++;
-
-	
+	insert_label(temp, temp.absolute_index);
 }
 
 int partition(int first, int last) {
@@ -418,15 +418,6 @@ void ANDS_inst(intfloat inp_inst, instruction_t instr) {
 
 // 
 void B_inst(intfloat inp_inst, instruction_t instr) {
-	printf("%d\n", (inp_inst.i & 0x03FFFFFF));
-	branch_label temp;
-	strcpy(temp.label, "label");
-	char strCount[5];
-	sprintf(strCount, "%d", branch_counter);
-	strncat(temp.label, strCount, 30 - strlen(temp.label) -1);
-	//sprintf(temp.label, "%d", branch_counter);
-	printf("%s\n", temp.label);
-	branch_counter++;
 	b_format(inp_inst, instr);
 }	
 
