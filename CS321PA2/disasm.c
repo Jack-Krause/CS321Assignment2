@@ -206,15 +206,14 @@ void decode_instruction(intfloat inp_inst, int num_opcodes) {
 	}	
 }
 
-void insert_instruction(const char* instr, int idx) {
+void insert_instruction(char[] instr, int idx) {
 	strcpy(instruction_list[idx], instr);
 }
 
 // shift instructions, insert "label:", add label to list
 void insert_label(branch_label branch, int idx) {
-	for (int i = idx; i < instruction_counter; i++) {
-		char temp = instruction_list[i+1];
-		instruction_list[i+1] = instruction_list[i];
+	for (int i = instruction_counter; i < idx; i--) {
+		strcpy(instruction_list[i], instruction_list[i-1]);
 	}
 	strcpy(instruction_list[idx], branch.label);
 	
