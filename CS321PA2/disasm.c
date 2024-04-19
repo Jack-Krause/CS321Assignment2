@@ -39,7 +39,7 @@ branch_label branches[30];
 // declare functions
 void decode_instruction(intfloat inp_inst, int num_opcodes);
 
-void insert_instruction(char* instr, int idx);
+void insert_instruction(char* instr);
 
 void insert_label(branch_label branch, int idx);
 
@@ -206,8 +206,9 @@ void decode_instruction(intfloat inp_inst, int num_opcodes) {
 	}	
 }
 
-void insert_instruction(char *instr, int idx) {
-	strcpy(instruction_list[idx], instr);
+void insert_instruction(char *instr) {
+	strcpy(instruction_list[instruction_counter], instr);
+	instruction_counter++;
 }
 
 // shift instructions, insert "label:", add label to list
@@ -278,8 +279,7 @@ void r_format(intfloat inp_inst, instruction_t instr) {
 
 	char str[50];
 	sprintf(str, "%s X%d, X%d, X%d", instr.mnemonic, Rd.i, Rn.i, Rm.i);
-	insert_instruction(str, instruction_counter);
-	instruction_counter++;	
+	insert_instruction(str);
 }
 
 void i_format(intfloat inp_inst, instruction_t instr) {
@@ -307,8 +307,8 @@ void i_format(intfloat inp_inst, instruction_t instr) {
 
 	char str[50];
 	sprintf(str, "%s X%d, X%d, #%d\n", instr.mnemonic, Rd.i, Rn.i, immediate.i);
-	insert_instruction(str, instruction_counter);
-	instruction_counter++;
+
+	insert_instruction(str);
 }
 
 // 
