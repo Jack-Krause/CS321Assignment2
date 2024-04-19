@@ -31,7 +31,7 @@ typedef union {
 int instruction_counter = 0;
 // list array of instructions
 // may have to be added to, adjusted for labels and branches
-char instruction_list[1000];
+char instruction_list[1000][50];
 // for tracking of branch labels and their names
 int branch_counter = 0;
 branch_label branches[30];
@@ -39,7 +39,7 @@ branch_label branches[30];
 // declare functions
 void decode_instruction(intfloat inp_inst, int num_opcodes);
 
-void insert_instruction(const char* instr, int idx);
+void insert_instruction(char* instr, int idx);
 
 void insert_label(branch_label branch, int idx);
 
@@ -206,7 +206,7 @@ void decode_instruction(intfloat inp_inst, int num_opcodes) {
 	}	
 }
 
-void insert_instruction(char[] instr, int idx) {
+void insert_instruction(char *instr, int idx) {
 	strcpy(instruction_list[idx], instr);
 }
 
