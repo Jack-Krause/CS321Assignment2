@@ -213,18 +213,26 @@ void insert_instruction(char *instr) {
 
 // shift instructions, insert "label:", add label to list
 void insert_label(branch_label branch, int idx) {
-	for (int i = instruction_counter; i < idx; i--) {
+	
+	printf("absolute: %d\n", branch.absolute_index);
+	printf("instr_c, idx: %d %d\n", instruction_counter, idx);
+
+	for (int i = instruction_counter; i >= idx; i--) {
+		printf("INDEX: %d\n", i);
 		strcpy(instruction_list[i], instruction_list[i-1]);
 	}
+
+	printf("Before Add at N\n");
 	strcpy(instruction_list[idx], branch.label);
 	
-	int b = 0;
+	printf("Before loop 2\n");
+	int b;
 	for (b = 0; b < branch_counter; b++) {
 		if (branches[b].absolute_index == idx) {
 			return;
 		}
 	}
-
+	printf("branches[b+1]\n");
 	branches[b+1] = branch;
 	branch_counter++;
 }	
@@ -314,24 +322,27 @@ void i_format(intfloat inp_inst, instruction_t instr) {
 // 
 void b_format(intfloat inp_inst, instruction_t instr) {
 	printf("B-format\n");
-	printf("%s ", instr.mnemonic);
+	printf("%s\n", instr.mnemonic);
 	
-	branch_label temp;
+	branch_label temp_branch;
 	
 	// set location (line number) of branch label
-	uint32_t loc = inp_inst.i & 0x03FFFFFF;	
-	temp.absolute_index = instruction_counter - loc;
+	int loc = inp_inst.i & 0x03FFFFFF;
+
+	temp_branch.absolute_index = instruction_counter - loc;
 	
+	printf("abs_int = %d\n", temp_branch.absolute_index);
+
 	// create instance of label and add it to the output array
-	strcpy(temp.label, "label");
+	strcpy(temp_branch.label, "label");
 	char str_count[20];
 	sprintf(str_count, "%d", branch_counter);
-	strncat(temp.label, str_count, 30 - strlen(temp.label) -1);
-	strcpy(temp.label, ":");
-	
+	strncat(temp_branch.label, str_count, 30 - strlen(temp_branch.label) -1);
+	strcpy(temp_branch.label, ":");
+	branch_counter++;
 	// insertion/operation 
 	// call with instruction_counter - relative_address
-	insert_label(temp, temp.absolute_index);
+	insert_label(temp_branch, temp_branch.absolute_index);
 }
 
 int partition(int first, int last) {
