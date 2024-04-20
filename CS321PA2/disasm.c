@@ -28,13 +28,13 @@ typedef union {
 } branch_label;
 
 // counter for current line
-int instruction_counter = 0;
+int instruction_counter;
 // list array of instructions
 // may have to be added to, adjusted for labels and branches
-char instruction_list[1000][50];
+char** instruction_list;
 // for tracking of branch labels and their names
-int branch_counter = 0;
-branch_label branches[30];
+int branch_counter;
+branch_label* branches;
 
 // declare functions
 void decode_instruction(intfloat inp_inst, int num_opcodes);
@@ -139,6 +139,21 @@ int main(int argc, char *argv[]) {
 		printf(" %d", instruction[i].opcode);
 		printf("\n");
 	}
+
+	// allocate instruction and branch label arrays
+	instruction_list = malloc(1000 * sizeof(char*));
+	if (instruction_list == NULL) {
+		perror("instr_list allocation fail");
+		return 1;
+	}
+
+	for (int i = 0; i < 1000; i++) {
+		instruction_list[i] = malloc(50 * sizeof(char));
+		instruction_list[i][0] = '\0';
+	}
+
+	branches = malloc(30 * sizeof(branch_label));
+	memset(branches, 0, 30 * sizeof(branch_label));
 	
 	// convert to 32 bit int
 	for (int i = 0; i < (buf.st_size / 4); i++) {
@@ -206,8 +221,9 @@ void decode_instruction(intfloat inp_inst, int num_opcodes) {
 	}	
 }
 
-void insert_instruction(char *instr) {
-	strcpy(instruction_list[instruction_counter], instr);
+void insert_instruction(char* instr) {
+	(*instruction_list)[instruction_counter] = *instr;
+	//strcpy(instruction_list[instruction_counter], instr);
 	instruction_counter++;
 }
 
@@ -313,7 +329,7 @@ void i_format(intfloat inp_inst, instruction_t instr) {
 	
 	printf("X%d, X%d, #%d\n", Rd.i, Rn.i, immediate.i);
 
-	char str[50];
+	char *str;
 	sprintf(str, "%s X%d, X%d, #%d\n", instr.mnemonic, Rd.i, Rn.i, immediate.i);
 
 	insert_instruction(str);
@@ -327,7 +343,7 @@ void b_format(intfloat inp_inst, instruction_t instr) {
 	branch_label temp_branch;
 	
 	// set location (line number) of branch label
-	int loc = inp_inst.i & 0x03FFFFFF;
+	int loc = (inp_inst.i & 0x03FFFFFF);
 
 	temp_branch.absolute_index = instruction_counter - loc;
 	
