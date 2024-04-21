@@ -23,7 +23,7 @@ typedef struct {
 // absolute location is the index
 // from the instructions[] array where the label is declared
 typedef union {
-	int absolute_index;
+	uint32_t absolute_index;
 	char label[30];
 } branch_label;
 
@@ -40,9 +40,9 @@ branch_label branches[30];
 // declare functions
 void decode_instruction(intfloat inp_inst, int num_opcodes);
 
-void insert_instruction(char* instr);
+void insert_instruction(char instr[]);
 
-void insert_label(branch_label branch, int idx);
+void insert_label(branch_label branch, uint32_t idx);
 
 int binary_search(intfloat opcode, int left, int right);
 
@@ -222,7 +222,7 @@ void insert_instruction(char instr[]) {
 }
 
 // shift instructions, insert "label:", add label to list
-void insert_label(branch_label branch, int idx) {
+void insert_label(branch_label branch, uint32_t idx) {
 	
 	printf("absolute: %d\n", branch.absolute_index);
 	printf("instr_c, idx: %d %d\n", instruction_counter, idx);
@@ -323,13 +323,14 @@ void i_format(intfloat inp_inst, instruction_t instr) {
 	
 	printf("X%d, X%d, #%d\n", Rd.i, Rn.i, immediate.i);
 
-	char *str;
+	char str[30];
 	sprintf(str, "%s X%d, X%d, #%d\n", instr.mnemonic, Rd.i, Rn.i, immediate.i);
-
 	insert_instruction(str);
 }
 
-// 
+// this method does two things:
+// 1) checks if the label is declared at: line number - offset, inserts label otherwise. In LEGv8: ```branch2:```
+// 2) inserts the actual instruction. in LEGv8: ```B branch2```
 void b_format(intfloat inp_inst, instruction_t instr) {
 	printf("B-format\n");
 	printf("%s\n", instr.mnemonic);
@@ -337,21 +338,19 @@ void b_format(intfloat inp_inst, instruction_t instr) {
 	branch_label temp_branch;
 	
 	// set location (line number) of branch label
-	int loc = (inp_inst.i & 0x03FFFFFF);
-
+	uint32_t loc = (inp_inst.i & 0x03FFFFFF);
 	temp_branch.absolute_index = instruction_counter - loc;
-	
-	printf("abs_int = %d\n", temp_branch.absolute_index);
 
 	// create instance of label and add it to the output array
-	strcpy(temp_branch.label, "label");
-	char str_count[20];
-	sprintf(str_count, "%d", branch_counter);
-	strncat(temp_branch.label, str_count, 30 - strlen(temp_branch.label) -1);
-	strcpy(temp_branch.label, ":");
+	char *str_count;
+	sprintf(str_count, "label %d:", branch_counter);
+	sprintf(temp_branch.label, str_count);
+	printf("%s\n", temp_branch.label);
 	branch_counter++;
-	// insertion/operation 
+
+	// insert string into output array
 	// call with instruction_counter - relative_address
+	// absolute index is the line number of "label n:"
 	insert_label(temp_branch, temp_branch.absolute_index);
 }
 
