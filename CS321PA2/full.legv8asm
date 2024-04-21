@@ -15,6 +15,3 @@ loop_one:
 
 loop_two:
 	ADD X10, X2, X3
-	B exit
-
-exit:
