@@ -22,9 +22,9 @@ typedef struct {
 
 // absolute location is the index
 // from the instructions[] array where the label is declared
-typedef union {
+typedef struct {
 	uint32_t absolute_index;
-	char label[30];
+	char *label;
 } branch_label;
 
 // counter for current line
@@ -335,23 +335,30 @@ void b_format(intfloat inp_inst, instruction_t instr) {
 	printf("B-format\n");
 	printf("%s\n", instr.mnemonic);
 	
-	branch_label temp_branch;
+	branch_label *temp_branch = malloc(sizeof(branch_label));
 	
 	// set location (line number) of branch label
 	uint32_t loc = (inp_inst.i & 0x03FFFFFF);
-	temp_branch.absolute_index = instruction_counter - loc;
-
+	temp_branch->absolute_index = instruction_counter - loc;
+		
+	printf("Before Ops: %d\n", temp_branch->absolute_index);
 	// create instance of label and add it to the output array
-	char *str_count;
+	
+	char str_count[30];
 	sprintf(str_count, "label %d:", branch_counter);
-	sprintf(temp_branch.label, str_count);
-	printf("%s\n", temp_branch.label);
-	branch_counter++;
-
+	//sprintf(temp_branch->label, str_count);
+	temp_branch->label = malloc(strlen(str_count) + 1);
+	strcpy(temp_branch->label, str_count);
+	//strcpy(temp_branch->label, str_count);
+	printf("%s\n", temp_branch->label);
+	printf("Before Call: %d\n", temp_branch->absolute_index);
 	// insert string into output array
 	// call with instruction_counter - relative_address
 	// absolute index is the line number of "label n:"
-	insert_label(temp_branch, temp_branch.absolute_index);
+	insert_label(*temp_branch, temp_branch->absolute_index);
+
+	// insert actual instruction (like: ```B loop2```)
+	// increment instruction counter (at the beginning?)
 }
 
 int partition(int first, int last) {
