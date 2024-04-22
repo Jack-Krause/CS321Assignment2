@@ -228,7 +228,7 @@ void insert_instruction(char instr[]) {
 void insert_label(branch_label branch, uint32_t idx) {
 	
 	printf("absolute: %d\n", branch.absolute_index);
-	printf("instr_c, idx: %d %d\n", instruction_counter, idx);
+	printf("instr_c, absolute: %d %d\n", instruction_counter, idx);
 
 	//for (int i = 0; i < instruction_counter; i++) {
 	//	printf("%d %s\n", i, instruction_list[i]);
@@ -350,7 +350,8 @@ void b_format(intfloat inp_inst, instruction_t instr) {
 	
 	// set location (line number) of branch label
 	uint32_t loc = (inp_inst.i & 0x03FFFFFF);
-
+	loc = loc << 2;
+	printf("relative: %d\n", loc);
 	if (loc < 0) {
 		printf("LOC is negative!\n");
 	} else if (loc > 0) {
