@@ -383,7 +383,9 @@ void b_format(intfloat inp_inst, instruction_t instr) {
 
 	// calculate absolute_index (line number of "labeln:")
 	int relative = (inp_inst.i & 0x03FFFFFF);
-	if (relative > 0) {
+	// handling for signed address (negatives)
+	if (relative & 0x02000000) {
+		relative |= ~0x03FFFFFF;
 		printf("NEGATIVE REL %d \n", relative);
 	}
 
