@@ -221,6 +221,11 @@ void decode_instruction(intfloat inp_inst, int num_opcodes) {
 void insert_branches() {
 	for (int i = 0; i < branch_counter; i++) {
 		branch_label temp_branch = branches[i];
+		
+		// adjust absolute index of labels to account for shifting
+		temp_branch.absolute_index += i;
+		
+		printf("%s %d\n", temp_branch.label, temp_branch.absolute_index);
 		// call insert_instruction with absolute_index
 		insert_instruction_index(temp_branch.label, temp_branch.absolute_index);
 	}
@@ -257,8 +262,9 @@ void insert_label(branch_label branch, uint32_t idx) {
 	printf("absolute: %d\n", branch.absolute_index);
 	printf("instr_c, absolute: %d %d\n", instruction_counter, idx);
 
+	// check branch is already declared (this is fine, no error)
 	for (int b = 0; b < branch_counter; b++) {
-		if (branches[b].absolute_index == idx) {
+		if (strcmp(branches[b].label, branch.label) == 1) {
 			return;
 		}
 	}
@@ -357,18 +363,10 @@ void b_format(intfloat inp_inst, instruction_t instr) {
 	
 	branch_label *temp_branch = malloc(sizeof(branch_label));
 	
-	// set location (line number) of branch label
-	uint32_t loc = (inp_inst.i & 0x03FFFFFF);
-
-	printf("relative: %d\n", loc);
-	if (loc < 0) {
-		printf("LOC is negative!\n");
-	} else if (loc > 0) {
-		printf("LOC is positive!\n");
-	}
-
-	temp_branch->absolute_index = instruction_counter + loc;
+	uint32_t relative = (inp_inst.i & 0x03FFFFFF);
 		
+	temp_branch->absolute_index = instruction_counter + relative;
+	
 	// create instance of label and add it to the output array
 	
 	char str_count[30];
