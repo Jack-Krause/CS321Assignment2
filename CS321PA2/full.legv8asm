@@ -3,15 +3,22 @@ ADDI X3, X4, #5
 ADDIS X6, X7, #8
 AND X9, X10, X11
 ANDI X12, X13, #14
-B loop_one
+B loop_two
 
-ADD X0, X1, X2
-ADD X1, X2, X0
-ADD X3, X1, X2
+AND X11, X10, X9
+ADDIS X8, X7, #6
 
 loop_one:
-	ADD X0, X1, X8
-	B loop_two
+	ADD X1, X2, X3
+	B loop_four
 
 loop_two:
-	ADD X10, X2, X3
+	ADD X2, X3, X4
+	B loop_three
+
+loop_three:
+	ADD X3, X4, X5
+	B loop_one
+
+loop_four:
+	ADD X4, X5, X6

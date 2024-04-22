@@ -363,34 +363,35 @@ void b_format(intfloat inp_inst, instruction_t instr) {
 	
 	branch_label *temp_branch = malloc(sizeof(branch_label));
 	
-	uint32_t relative = (inp_inst.i & 0x03FFFFFF);
-		
-	temp_branch->absolute_index = instruction_counter + relative;
-	
 	// create instance of label and add it to the output array
-	
 	char str_count[30];
 	char actual_instr[35];
 	int bc = branch_counter + 1;
 	sprintf(str_count, "label%d", bc);
 	sprintf(actual_instr, "B %s", str_count);
 	strcat(str_count, ":");
-	//sprintf(str_count, ":");
-
-
+	
+	
 	temp_branch->label = malloc(strlen(str_count) + 1);
 	strcpy(temp_branch->label, str_count);
 	printf("%s\n", temp_branch->label);
 	
-	// call with instruction_counter - relative_address
-	// absolute index is the line number of "label n:"
-	insert_label(*temp_branch, temp_branch->absolute_index);
-
 	// insert actual instruction (like: ```B loop2```)
 	// increment instruction counter (at the beginning?)
 	//instruction_counter++;
-	
 	insert_instruction(actual_instr);
+
+	// calculate absolute_index (line number of "labeln:")
+	int relative = (inp_inst.i & 0x03FFFFFF);
+	if (relative > 0) {
+		printf("NEGATIVE REL %d \n", relative);
+	}
+
+	temp_branch->absolute_index = instruction_counter + relative;
+
+	// call with instruction_counter - relative_address
+	// absolute index is the line number of "label n:"
+	insert_label(*temp_branch, temp_branch->absolute_index);
 }
 
 int partition(int first, int last) {
