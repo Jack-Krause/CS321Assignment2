@@ -55,6 +55,8 @@ void r_format(intfloat inp_inst, instruction_t instr);
 void i_format(intfloat inp_inst, instruction_t instr);
 void b_format(intfloat inp_inst, instruction_t instr);
 
+void sort_branches();
+
 int partition(int first, int last);
 
 void quick_sort(int first, int last);
@@ -161,6 +163,7 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 	
+	sort_branches();
 	// insert the branch labels as final editing of output
 	insert_branches();
 	
@@ -236,7 +239,7 @@ void insert_instruction_index(char instr[], int idx) {
 	
 	instruction_list[instruction_counter] = malloc(strlen(instr) + 20);
 	
-	for (int i = instruction_counter; i >= idx; i--) {
+	for (int i = instruction_counter; i > idx; i--) {
 		instruction_list[i] = instruction_list[i-1];	
 	}
 	instruction_list[idx] = instr;
@@ -378,7 +381,6 @@ void b_format(intfloat inp_inst, instruction_t instr) {
 	
 	// insert actual instruction (like: ```B loop2```)
 	// increment instruction counter (at the beginning?)
-	//instruction_counter++;
 	insert_instruction(actual_instr);
 
 	// calculate absolute_index (line number of "labeln:")
@@ -394,6 +396,20 @@ void b_format(intfloat inp_inst, instruction_t instr) {
 	// call with instruction_counter - relative_address
 	// absolute index is the line number of "label n:"
 	insert_label(*temp_branch, temp_branch->absolute_index);
+}
+
+void sort_branches() {
+
+	for (int b = 1; b < branch_counter; b++) {
+		branch_label temp = branches[b];
+		int key = branches[b].absolute_index;
+		int j = b - 1;
+		while (j >= 0 && branches[j].absolute_index > key) {
+			branches[j+1] = branches[j];
+			j = j-1;
+		}
+		branches[j + 1] = temp;
+	}
 }
 
 int partition(int first, int last) {
