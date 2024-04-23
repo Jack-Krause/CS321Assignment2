@@ -170,7 +170,7 @@ int main(int argc, char *argv[]) {
 	printf("FINAL OUTPUT:\n");
 	for (int i = 0; i < instruction_counter; i++) {
 		if (instruction_list[i] != NULL) {
-			printf("%d: %s\n", i, instruction_list[i]);
+			printf("%s\n", instruction_list[i]);
 		}
 	}
 
@@ -237,14 +237,13 @@ void insert_branches() {
 void insert_instruction_index(char instr[], int idx) {
 	//instruction_counter++;
 	instruction_list[instruction_counter+1] = malloc(strlen(instr) + 20);
-	printf("NOTE: %d\n", instruction_counter);
+	
 	for (int i = instruction_counter; i >= idx; i--) {
 		instruction_list[i] = instruction_list[i-1];	
 	}
 	instruction_list[idx-1] = instr;
 	
 	instruction_counter++;
-	printf("NOTEB: %d\n", instruction_counter);
 }
 
 void insert_instruction(char instr[]) {
