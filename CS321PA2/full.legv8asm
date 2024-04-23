@@ -22,3 +22,13 @@ loop_three:
 
 loop_four:
 	ADD X4, X5, X6
+	DUMP
+
+CBZ X19, exit
+
+exit:
+	ADDI X19, X19, #1
+	CBNZ X19, exit2
+
+exit2:
+	DUMP

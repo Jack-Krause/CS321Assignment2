@@ -54,6 +54,7 @@ int binary_search(intfloat opcode, int left, int right);
 void r_format(intfloat inp_inst, instruction_t instr);
 void i_format(intfloat inp_inst, instruction_t instr);
 void b_format(intfloat inp_inst, instruction_t instr);
+void cb_format(intfloat inp_inst, instruction_t instr);
 
 void sort_branches();
 
@@ -80,6 +81,7 @@ void BL_inst(intfloat inp_inst, instruction_t instr);
 void BR_inst(intfloat inp_inst, instruction_t instr);
 void CBNZ_inst(intfloat inp_inst, instruction_t instr);
 void CBZ_inst(intfloat inp_inst, instruction_t instr);
+void DUMP_inst(intfloat inp_inst, instruction_t instr);
 
 instruction_t instruction[] = {
 	{ "ADD",     ADD_inst,    0b10001011000 },
@@ -94,7 +96,8 @@ instruction_t instruction[] = {
  	{ "BL",      BL_inst,     0b100101      },
  	{ "BR",      BR_inst,     0b11010110000 },
  	{ "CBNZ",    CBNZ_inst,   0b10110101    },
- 	{ "CBZ",     CBZ_inst,    0b10110100    }
+ 	{ "CBZ",     CBZ_inst,    0b10110100    },
+	{ "DUMP",    DUMP_inst,   0b11111111110 }
 };
 
 int main(int argc, char *argv[]) {
@@ -298,6 +301,12 @@ void r_format(intfloat inp_inst, instruction_t instr) {
 
 	// opcode: first 11 bits [31-21]
 	printf("%s ", instr.mnemonic);
+	
+	// DUMP doesn't follow typical R-format output
+	if (strcmp(instr.mnemonic, "DUMP") == 0) {
+		insert_instruction(instr.mnemonic);
+		return;
+	}
 
 	// Rm: second register source operand: 5 bits [20-16]
 	intfloat Rm;
@@ -394,6 +403,52 @@ void b_format(intfloat inp_inst, instruction_t instr) {
 
 	// call with instruction_counter - relative_address
 	// absolute index is the line number of "label n:"
+	insert_label(*temp_branch, temp_branch->absolute_index);
+}
+
+void cb_format(intfloat inp_inst, instruction_t instr) {
+	printf("CB-format\n");
+
+	intfloat COND_BR_address;
+ 	COND_BR_address.i = (inp_inst.i >> 5) & 0x7FFFF;
+	
+	// handle negative address
+	if (COND_BR_address.i & 0x40000) {
+		COND_BR_address.i |= ~0x7FFFF;
+	}
+	
+	// add new branch if needed, similar to B-format
+	branch_label *temp_branch = malloc(sizeof(branch_label));
+	
+	printf("Flag 1\n");
+
+	char str_count[30];
+	char actual_instr[35];
+	int bc = branch_counter + 1;
+	sprintf(str_count, "label%d", bc);
+	sprintf(actual_instr, "%s", str_count);
+	strcat(str_count, ":");
+	
+	printf("Flag 2\n");
+
+	temp_branch->label = malloc(strlen(str_count) + 1);
+	strcpy(temp_branch->label, str_count);
+	printf("%s\n", temp_branch->label);
+
+	intfloat Rt;
+	Rt.i = inp_inst.i & 0x1F;
+
+	printf("Flag 3\n");
+
+	char str[50];
+	sprintf(str, "%s X%d, %s", instr.mnemonic, Rt.i, actual_instr);
+
+	insert_instruction(str);
+	
+	printf("Flag 4\n");
+
+	temp_branch->absolute_index = instruction_counter + COND_BR_address.i;
+	printf("Flag 5\n");
 	insert_label(*temp_branch, temp_branch->absolute_index);
 }
 
@@ -505,13 +560,15 @@ void BR_inst(intfloat inp_inst, instruction_t instr) {
 }
 
 void CBNZ_inst(intfloat inp_inst, instruction_t instr) {
-	printf("CBNZ_inst\n");
-	// CB-type
+	cb_format(inp_inst, instr);
 }
 
 void CBZ_inst(intfloat inp_inst, instruction_t instr) {
-	printf("CBZ_inst\n");
-	// CB-type
+	cb_format(inp_inst, instr);
+}
+
+void DUMP_inst(intfloat inp_inst, instruction_t instr) {
+	r_format(inp_inst, instr);
 }
 
 
