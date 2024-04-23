@@ -235,21 +235,21 @@ void insert_branches() {
 }
 
 void insert_instruction_index(char instr[], int idx) {
-	instruction_counter++;
-	
+	//instruction_counter++;
 	instruction_list[instruction_counter] = malloc(strlen(instr) + 20);
 	
 	for (int i = instruction_counter; i > idx; i--) {
 		instruction_list[i] = instruction_list[i-1];	
 	}
 	instruction_list[idx] = instr;
-
+	
+	instruction_counter++;
 }
 
 void insert_instruction(char instr[]) {
 	//(*instruction_list)[instruction_counter] = *instr;
 	//strcpy(instruction_list[instruction_counter], instr);
-	
+	instruction_counter++;
 	instruction_list[instruction_counter] = malloc(strlen(instr) + 1);
 	
 	if (instruction_list[instruction_counter] != NULL) {
@@ -257,7 +257,7 @@ void insert_instruction(char instr[]) {
 	} else {
 		printf("Failed to insert instruction");
 	}
-	instruction_counter++;
+	//instruction_counter++;
 }
 
 // add label to list
