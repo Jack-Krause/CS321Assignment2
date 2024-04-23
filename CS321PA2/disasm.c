@@ -170,7 +170,7 @@ int main(int argc, char *argv[]) {
 	printf("FINAL OUTPUT:\n");
 	for (int i = 0; i < instruction_counter; i++) {
 		if (instruction_list[i] != NULL) {
-			printf("%s\n", instruction_list[i]);
+			printf("%d: %s\n", i, instruction_list[i]);
 		}
 	}
 
@@ -236,20 +236,19 @@ void insert_branches() {
 
 void insert_instruction_index(char instr[], int idx) {
 	//instruction_counter++;
-	instruction_list[instruction_counter] = malloc(strlen(instr) + 20);
-	
-	for (int i = instruction_counter; i > idx; i--) {
+	instruction_list[instruction_counter+1] = malloc(strlen(instr) + 20);
+	printf("NOTE: %d\n", instruction_counter);
+	for (int i = instruction_counter; i >= idx; i--) {
 		instruction_list[i] = instruction_list[i-1];	
 	}
-	instruction_list[idx] = instr;
+	instruction_list[idx-1] = instr;
 	
 	instruction_counter++;
+	printf("NOTEB: %d\n", instruction_counter);
 }
 
 void insert_instruction(char instr[]) {
-	//(*instruction_list)[instruction_counter] = *instr;
-	//strcpy(instruction_list[instruction_counter], instr);
-	instruction_counter++;
+	//instruction_counter++;
 	instruction_list[instruction_counter] = malloc(strlen(instr) + 1);
 	
 	if (instruction_list[instruction_counter] != NULL) {
@@ -257,7 +256,7 @@ void insert_instruction(char instr[]) {
 	} else {
 		printf("Failed to insert instruction");
 	}
-	//instruction_counter++;
+	instruction_counter++;
 }
 
 // add label to list
@@ -326,6 +325,7 @@ void r_format(intfloat inp_inst, instruction_t instr) {
 	char str[30];
 	sprintf(str, "%s X%d, X%d, X%d", instr.mnemonic, Rd.i, Rn.i, Rm.i);
 	printf("argument: %s\n", str); 
+	printf("%d\n", instruction_counter);
 	insert_instruction(str);
 }
 
