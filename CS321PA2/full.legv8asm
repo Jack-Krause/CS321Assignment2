@@ -1,38 +1,40 @@
-ADD X0, X1, X2
-ADDI X3, X4, #5
-ADDIS X6, X7, #8
-AND X9, X10, X11
-ANDI X12, X13, #14
-B loop_two
-
-AND X11, X10, X9
-ADDIS X8, X7, #6
-
-loop_one:
-	ADD X1, X2, X3
-	B loop_four
-
-loop_two:
-	ADD X2, X3, X4
-	B loop_three
-
-loop_three:
-	ADD X3, X4, X5
-	B loop_one
-
-loop_four:
-	ADD X4, X5, X6
-	DUMP
-
-CBZ X19, exit
-
-exit:
-	ADDI X19, X19, #1
-	CBNZ X19, exit2
-
-exit2:
-	DUMP
+ADD X1, X2, X3
+ADDI X1, X2, #8
+AND X1, X2, X3 
+ANDI X1, X2, #4
+B 1
+B.EQ 2
+B.NE 3
+B.HS 4
+B.LO 5
+B.MI 6
+B.PL 7
+B.VS 8
+B.VC 9
+B.HI 10
+B.LS 11
+B.GE 12
+B.LT 13
+B.GT 14
+B.LE 15
+BL 40
+BR X30
+CBNZ X1, 17
+CBZ X1, 18
 EOR X1, X2, X3
-EORI X2, X3, #4
-FADDD X3, X4, X5
-FADDS X4, X5, X6
+EORI X1, X2, #13
+LDUR X9, [X12, #8]
+LSL X2, X9, #3
+LSR X3, X9, #4
+ORR X1, X2, X3
+ORRI X1, X2, #8
+STUR X9, [X1, #64]
+SUB X1, X2, X4
+SUBI X4, X2, #16
+SUBIS X2, X2, #32
+SUBS X2, X1, X2
+MUL X1, X2, X3
+PRNT X12
+PRNL
+DUMP
+HALT

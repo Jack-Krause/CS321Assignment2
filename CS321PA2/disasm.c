@@ -193,9 +193,10 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 	
-	sort_branches();
+	// NOTE: UNCOMMENT THESE TO SHOW LABELS IN OUTPUT
+	//sort_branches();
 	// insert the branch labels as final editing of output
-	insert_branches();
+	//insert_branches();
 	
 	printf("FINAL OUTPUT:\n");
 	for (int i = 0; i < instruction_counter; i++) {
@@ -295,7 +296,8 @@ void insert_label(branch_label branch, uint32_t idx) {
 
 	// check branch is already declared (this is fine, no error)
 	for (int b = 0; b < branch_counter; b++) {
-		if (strcmp(branches[b].label, branch.label) == 1) {
+	//	if (strcmp(branches[b].label, branch.label) == 1) {
+		if (branches[b].absolute_index == branch.absolute_index) {
 			return;
 		}
 	}
@@ -352,14 +354,19 @@ void r_format(intfloat inp_inst, instruction_t instr) {
 	//printf("%d\n", Rd.i);
 	
 	if (strcmp(instr.mnemonic, "PRNT") == 0) {
-		sprintf(str, "%s, X%d", instr.mnemonic, Rd.i);
+		sprintf(str, "%s X%d", instr.mnemonic, Rd.i);
 		insert_instruction(str);
 		return;
 	}
 
+	if (strcmp(instr.mnemonic, "LSL") == 0 || strcmp(instr.mnemonic, "LSR") == 0) {
+		sprintf(str, "%s X%d, X%d, #%d", instr.mnemonic, Rd.i, Rn.i, shamt.i);
+	} else {
+		sprintf(str, "%s X%d, X%d, X%d", instr.mnemonic, Rd.i, Rn.i, Rm.i);
+	}
+
 	printf("X%d, X%d, X%d\n", Rd.i, Rn.i, Rm.i);
 
-	sprintf(str, "%s X%d, X%d, X%d", instr.mnemonic, Rd.i, Rn.i, Rm.i);
 	printf("argument: %s\n", str); 
 	printf("%d\n", instruction_counter);
 	insert_instruction(str);
@@ -407,9 +414,8 @@ void b_format(intfloat inp_inst, instruction_t instr) {
 	char actual_instr[35];
 	int bc = branch_counter + 1;
 	sprintf(str_count, "label%d", bc);
-	sprintf(actual_instr, "B %s", str_count);
+	sprintf(actual_instr, "%s %s", instr.mnemonic, str_count);
 	strcat(str_count, ":");
-	
 	
 	temp_branch->label = malloc(strlen(str_count) + 1);
 	strcpy(temp_branch->label, str_count);
@@ -464,12 +470,16 @@ void cb_format(intfloat inp_inst, instruction_t instr) {
 	
 	// check for B.cond instruction. diverge if so
 	if (strcmp(instr.mnemonic, "B.") == 0) {
-		Rt.i = (inp_inst.i >> 20) & 0xF;
+		Rt.i = inp_inst.i & 0x1F;
+		printf("+++RT IS: %d\n", Rt.i);
 		sprintf(str, "%s%s %s", instr.mnemonic, b_suffix[Rt.i], temp_branch->label);
+		insert_instruction(str);
+		temp_branch->absolute_index = instruction_counter + COND_BR_address.i;
+		insert_label(*temp_branch, temp_branch->absolute_index);
+		return;
 	}
 
 	// else: continue as normal
-
 	Rt.i = inp_inst.i & 0x1F;
 	sprintf(str, "%s X%d, %s", instr.mnemonic, Rt.i, actual_instr);
 
@@ -500,7 +510,8 @@ void d_format(intfloat inp_inst, instruction_t instr) {
 	Rt.i = inp_inst.i & 0x1F;
 
 	char str[50];
-	sprintf(str, "%s [X%d, #%d]", instr.mnemonic, Rt.i, Rn.i, DT_address.i);
+	sprintf(str, "%s X%d, [X%d, #%d]", instr.mnemonic, Rt.i, Rn.i, DT_address.i);
+	insert_instruction(str);
 }
 
 void sort_branches() {
