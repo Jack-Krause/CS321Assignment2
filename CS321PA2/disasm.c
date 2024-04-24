@@ -359,6 +359,12 @@ void r_format(intfloat inp_inst, instruction_t instr) {
 		return;
 	}
 
+	if (strcmp(instr.mnemonic, "BR") == 0) {
+		sprintf(str, "%s X%d", instr.mnemonic, Rn.i);
+		insert_instruction(str);
+		return;
+	}
+
 	if (strcmp(instr.mnemonic, "LSL") == 0 || strcmp(instr.mnemonic, "LSR") == 0) {
 		sprintf(str, "%s X%d, X%d, #%d", instr.mnemonic, Rd.i, Rn.i, shamt.i);
 	} else {
