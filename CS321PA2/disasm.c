@@ -30,7 +30,6 @@ typedef struct {
 // counter for current line
 int instruction_counter;
 // list array of instructions
-// may have to be added to, adjusted for labels and branches
 char *instruction_list[1000] = {NULL};
 // for tracking of branch labels and their names
 int branch_counter;
@@ -39,66 +38,87 @@ branch_label branches[30];
 
 // declare functions
 void decode_instruction(intfloat inp_inst, int num_opcodes);
-
 void insert_branches();
-
 void insert_instruction_index(char instr[], int idx);
-
 void insert_instruction(char instr[]);
-
 void insert_label(branch_label branch, uint32_t idx);
-
 int binary_search(intfloat opcode, int left, int right);
 
-// callable methods for output of instruction
+// LEGv8 format instructions:
 void r_format(intfloat inp_inst, instruction_t instr);
 void i_format(intfloat inp_inst, instruction_t instr);
 void b_format(intfloat inp_inst, instruction_t instr);
 void cb_format(intfloat inp_inst, instruction_t instr);
+void d_format(intfloat inp_inst, instruction_t instr);
 
+// other util functions:
 void sort_branches();
-
 int partition(int first, int last);
-
 void quick_sort(int first, int last);
-
 void float_bits(intfloat i);
-
 void get_format(intfloat i);
 
 // methods for specific instances of required instructions
 // these call their respective LEGv8 instruction type or format
 void ADD_inst(intfloat inp_inst, instruction_t instr);
 void ADDI_inst(intfloat inp_inst, instruction_t instr);
-void ADDIS_inst(intfloat inp__inst, instruction_t instr);
-void ADDS_inst(intfloat inp_inst, instruction_t instr);
 void AND_inst(intfloat inp_inst, instruction_t instr);
 void ANDI_inst(intfloat inp_inst, instruction_t instr);
-void ANDIS_inst(intfloat inp_inst, instruction_t instr);
-void ANDS_inst(intfloat inp_inst, instruction_t instr);
 void B_inst(intfloat inp_inst, instruction_t instr);
 void BL_inst(intfloat inp_inst, instruction_t instr);
 void BR_inst(intfloat inp_inst, instruction_t instr);
 void CBNZ_inst(intfloat inp_inst, instruction_t instr);
 void CBZ_inst(intfloat inp_inst, instruction_t instr);
 void DUMP_inst(intfloat inp_inst, instruction_t instr);
+void EOR_inst(intfloat inp_inst, instruction_t instr);
+void EORI_inst(intfloat inp_inst, instruction_t instr);
+
+void HALT_inst(intfloat inp_inst, instruction_t instr);
+void LDUR_inst(intfloat inp_inst, instruction_t instr);
+void LSL_inst(intfloat inp_inst, instruction_t instr);
+void LSR_inst(intfloat inp_inst, instruction_t instr);
+void MUL_inst(intfloat inp_inst, instruction_t instr);
+void ORR_inst(intfloat inp_inst, instruction_t instr);
+void ORRI_inst(intfloat inp_inst, instruction_t instr);
+void PRNL_inst(intfloat inp_inst, instruction_t instr);
+void PRNT_inst(intfloat inp_inst, instruction_t instr);
+void STUR_inst(intfloat inp_inst, instruction_t instr);
+void SUB_inst(intfloat inp_inst, instruction_t instr);
+void SUBI_inst(intfloat inp_inst, instruction_t instr);
+void SUBIS_inst(intfloat inp_inst, instruction_t instr);
+void SUBS_inst(intfloat inp_inst, instruction_t instr);
+
+
 
 instruction_t instruction[] = {
-	{ "ADD",     ADD_inst,    0b10001011000 },
-  	{ "ADDI",    ADDI_inst,   0b1001000100  },
-  	{ "ADDIS",   ADDIS_inst,  0b1011000100  },
-	{ "ADDS",    ADDS_inst,   0b10101011000 },
-  	{ "AND",     AND_inst,    0b10001010000 },
-  	{ "ANDI",    ANDI_inst,   0b1001001000  },
-  	{ "ANDIS",   ANDIS_inst,  0b1111001000  },
-  	{ "ANDS",    ANDS_inst,   0b1110101000  },
-	{ "B",       B_inst,      0b000101      },
- 	{ "BL",      BL_inst,     0b100101      },
- 	{ "BR",      BR_inst,     0b11010110000 },
- 	{ "CBNZ",    CBNZ_inst,   0b10110101    },
- 	{ "CBZ",     CBZ_inst,    0b10110100    },
-	{ "DUMP",    DUMP_inst,   0b11111111110 }
+  { "ADD",     ADD_inst,    0b10001011000 },
+  { "ADDI",    ADDI_inst,   0b1001000100  },
+  { "AND",     AND_inst,    0b10001010000 },
+  { "ANDI",    ANDI_inst,   0b1001001000  },
+  { "B",       B_inst,      0b000101      },
+  { "BL",      BL_inst,     0b100101      },
+  { "BR",      BR_inst,     0b11010110000 },
+  { "CBNZ",    CBNZ_inst,   0b10110101    },
+  { "CBZ",     CBZ_inst,    0b10110100    },
+  { "DUMP",    DUMP_inst,   0b11111111110 },
+  { "EOR",     EOR_inst,    0b11001010000 },
+  { "EORI",    EORI_inst,   0b1101001000  },
+  { "HALT",    HALT_inst,   0b11111111111 },
+  { "LDUR",    LDUR_inst,   0b11111000010 },
+  { "LSL",     LSL_inst,    0b11010011011 },
+  { "LSR",     LSR_inst,    0b11010011010 },
+  { "MUL",     MUL_inst,    0b10011011000 },
+  { "ORR",     ORR_inst,    0b10101010000 },
+  { "ORRI",    ORRI_inst,   0b1011001000  },
+  { "PRNL",    PRNL_inst,   0b11111111100 },
+  { "PRNT",    PRNT_inst,   0b11111111101 },
+  { "STUR",    STUR_inst,   0b11111000000 },
+  { "SUB",     SUB_inst,    0b11001011000 },
+  { "SUBI",    SUBI_inst,   0b1101000100  },
+  { "SUBIS",   SUBIS_inst,  0b1111000100  },
+  { "SUBS",    SUBS_inst,   0b11101011000 }
 };
+
 
 int main(int argc, char *argv[]) {
 	int fd;
@@ -299,14 +319,10 @@ int binary_search(intfloat opcode, int left, int right) {
 void r_format(intfloat inp_inst, instruction_t instr) {
 	printf("R-format\n");
 
+	char str[30];
+
 	// opcode: first 11 bits [31-21]
 	printf("%s ", instr.mnemonic);
-	
-	// DUMP doesn't follow typical R-format output
-	if (strcmp(instr.mnemonic, "DUMP") == 0) {
-		insert_instruction(instr.mnemonic);
-		return;
-	}
 
 	// Rm: second register source operand: 5 bits [20-16]
 	intfloat Rm;
@@ -327,10 +343,15 @@ void r_format(intfloat inp_inst, instruction_t instr) {
 	intfloat Rd;
 	Rd.i = inp_inst.i & 0x1F;
 	//printf("%d\n", Rd.i);
+	
+	if (strcmp(instr.mnemonic, "PRNT") == 0) {
+		sprintf(str, "%s, X%d", instr.mnemonic, Rd.i);
+		insert_instruction(str);
+		return;
+	}
 
 	printf("X%d, X%d, X%d\n", Rd.i, Rn.i, Rm.i);
 
-	char str[30];
 	sprintf(str, "%s X%d, X%d, X%d", instr.mnemonic, Rd.i, Rn.i, Rm.i);
 	printf("argument: %s\n", str); 
 	printf("%d\n", instruction_counter);
@@ -452,8 +473,30 @@ void cb_format(intfloat inp_inst, instruction_t instr) {
 	insert_label(*temp_branch, temp_branch->absolute_index);
 }
 
-void sort_branches() {
+void d_format(intfloat inp_inst, instruction_t instr) {
+	intfloat DT_address;
+	intfloat op;
+	intfloat Rn;
+	intfloat Rt;
+	
+	// LDUR X9, [X10, #240]
+	// DT_address: 9 bits [20-12]
+	DT_address.i = (inp_inst.i >> 12) & 0x1FF;
 
+	// op2/op: 2 bits [11-10]
+	op.i = (inp_inst.i >> 10) & 0x3;
+
+	// Rn: base register: 5 bits [9-5]
+	Rn.i = (inp_inst.i >> 5) & 0x1F;
+
+	// Rt destination/source register: 5 bits [4-0]
+	Rt.i = inp_inst.i & 0x1F;
+
+	char str[50];
+	sprintf(str, "%s [X%d, #%d]", instr.mnemonic, Rt.i, Rn.i, DT_address.i);
+}
+
+void sort_branches() {
 	for (int b = 1; b < branch_counter; b++) {
 		branch_label temp = branches[b];
 		int key = branches[b].absolute_index;
@@ -546,7 +589,6 @@ void ANDS_inst(intfloat inp_inst, instruction_t instr) {
 	r_format(inp_inst, instr);
 }
 
-// 
 void B_inst(intfloat inp_inst, instruction_t instr) {
 	b_format(inp_inst, instr);
 }	
@@ -568,9 +610,76 @@ void CBZ_inst(intfloat inp_inst, instruction_t instr) {
 }
 
 void DUMP_inst(intfloat inp_inst, instruction_t instr) {
+	//r_format(inp_inst, instr);
+	// DUMP doesn't follow normal R-format
+	insert_instruction(instr.mnemonic);
+}
+
+void EOR_inst(intfloat inp_inst, instruction_t instr) {
 	r_format(inp_inst, instr);
 }
 
+void EORI_inst(intfloat inp_inst, instruction_t instr) {
+	i_format(inp_inst, instr);
+}
 
+void HALT_inst(intfloat inp_inst, instruction_t instr) {
+	// HALT doesn't follow typical R-format
+	insert_instruction(instr.mnemonic);
+}
+
+void LDUR_inst(intfloat inp_inst, instruction_t instr) {
+	d_format(inp_inst, instr);
+}
+
+void LSL_inst(intfloat inp_inst, instruction_t instr) {
+	r_format(inp_inst, instr);
+}
+
+void LSR_inst(intfloat inp_inst, instruction_t instr) {
+	r_format(inp_inst, instr);
+}
+
+void MUL_inst(intfloat inp_inst, instruction_t instr) {
+	r_format(inp_inst, instr);
+}
+
+void ORR_inst(intfloat inp_inst, instruction_t instr) {
+	r_format(inp_inst, instr);
+}
+
+void ORRI_inst(intfloat inp_inst, instruction_t instr) {
+	i_format(inp_inst, instr);
+}
+
+void PRNL_inst(intfloat inp_inst, instruction_t instr) {
+	// PRNL doesn't follow typical R-format
+	insert_instruction(instr.mnemonic);
+}
+
+void PRNT_inst(intfloat inp_inst, instruction_t instr) {
+	// special case of R-format
+	r_format(inp_inst, instr);
+}
+
+void STUR_inst(intfloat inp_inst, instruction_t instr) {
+	d_format(inp_inst, instr);
+}
+
+void SUB_inst(intfloat inp_inst, instruction_t instr) {
+	r_format(inp_inst, instr);
+}
+
+void SUBI_inst(intfloat inp_inst, instruction_t instr) {
+	i_format(inp_inst, instr);
+}
+
+void SUBIS_inst(intfloat inp_inst, instruction_t instr) {
+	i_format(inp_inst, instr);
+}
+
+void SUBS_inst(intfloat inp_inst, instruction_t instr) {
+	r_format(inp_inst, instr);
+}
 
 

@@ -32,3 +32,7 @@ exit:
 
 exit2:
 	DUMP
+EOR X1, X2, X3
+EORI X2, X3, #4
+FADDD X3, X4, X5
+FADDS X4, X5, X6
