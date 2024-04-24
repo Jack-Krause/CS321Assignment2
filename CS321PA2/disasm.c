@@ -73,7 +73,6 @@ void CBZ_inst(intfloat inp_inst, instruction_t instr);
 void DUMP_inst(intfloat inp_inst, instruction_t instr);
 void EOR_inst(intfloat inp_inst, instruction_t instr);
 void EORI_inst(intfloat inp_inst, instruction_t instr);
-
 void HALT_inst(intfloat inp_inst, instruction_t instr);
 void LDUR_inst(intfloat inp_inst, instruction_t instr);
 void LSL_inst(intfloat inp_inst, instruction_t instr);
@@ -162,29 +161,18 @@ int main(int argc, char *argv[]) {
 		       );
 
 	int num_opcodes = sizeof(instruction) / sizeof(instruction[0]);
-	printf("N is: %d\n", num_opcodes);
-
+	
 	// sort opcodes for lookup time of O(log n) with binary search
 	// might implement a hashtable if time
 	quick_sort(0, num_opcodes -1);
-
-	for (int i = 0; i < num_opcodes; i++) {
-		printf("Sorted: %s ", instruction[i].mnemonic);
-		for (int k = 10; k >= 0; k--) {
-			printf("%d", (instruction[i].opcode >> k) & 0x1);
-		}
-		printf(" %d", instruction[i].opcode);
-		printf("\n");
-	}
 
 	// convert to 32 bit int
 	for (int i = 0; i < (buf.st_size / 4); i++) {
 		uint32_t temp = be32toh(program[i]);
 		intfloat t;
 	        t.i = temp;
-		float_bits(t);
+		//float_bits(t);
 		decode_instruction(t, num_opcodes);
-		printf("\n");
 	}
 
 	if (program == NULL) {
@@ -194,11 +182,10 @@ int main(int argc, char *argv[]) {
 	}
 	
 	// NOTE: UNCOMMENT THESE TO SHOW LABELS IN OUTPUT
-	//sort_branches();
+	sort_branches();
 	// insert the branch labels as final editing of output
-	//insert_branches();
+	insert_branches();
 	
-	printf("FINAL OUTPUT:\n");
 	for (int i = 0; i < instruction_counter; i++) {
 		if (instruction_list[i] != NULL) {
 			printf("%s\n", instruction_list[i]);
@@ -214,11 +201,6 @@ int main(int argc, char *argv[]) {
 // break instruction into first 11 bits, retrieve the instance of this instruction
 void decode_instruction(intfloat inp_inst, int num_opcodes) {
 	intfloat opcode;
-
-	for (int j = 31; j >= 21; j--) {
-		printf("%d", (inp_inst.i >> j) & 0x1);
-	}
-	printf(" %d\n", inp_inst.i >> 26);
 
 	// try increasingly longer opcodes
 	opcode.i = inp_inst.i >> 26; // first 6 bits to check for B-type
@@ -243,7 +225,6 @@ void decode_instruction(intfloat inp_inst, int num_opcodes) {
 	// if idx >= 0 then success, call output function of LEGv8 instruction
 	if (idx_found > -1) {
 		instruction_t inst_found = instruction[idx_found];
-		printf("mnemonic is: %s\n", inst_found.mnemonic);
 		// call instance function
 		inst_found.function(inp_inst, inst_found);
 	} else { // the instruction was not found
@@ -259,7 +240,6 @@ void insert_branches() {
 		// adjust absolute index of labels to account for shifting
 		temp_branch.absolute_index += i;
 		
-		printf("%s %d\n", temp_branch.label, temp_branch.absolute_index);
 		// call insert_instruction with absolute_index
 		insert_instruction_index(temp_branch.label, temp_branch.absolute_index);
 	}
@@ -291,9 +271,6 @@ void insert_instruction(char instr[]) {
 
 // add label to list
 void insert_label(branch_label branch, uint32_t idx) {
-	printf("absolute: %d\n", branch.absolute_index);
-	printf("instr_c, absolute: %d %d\n", instruction_counter, idx);
-
 	// check branch is already declared (this is fine, no error)
 	for (int b = 0; b < branch_counter; b++) {
 	//	if (strcmp(branches[b].label, branch.label) == 1) {
@@ -326,13 +303,10 @@ int binary_search(intfloat opcode, int left, int right) {
 }
 
 void r_format(intfloat inp_inst, instruction_t instr) {
-	printf("R-format\n");
-
 	char str[30];
 
 	// opcode: first 11 bits [31-21]
-	printf("%s ", instr.mnemonic);
-
+	
 	// Rm: second register source operand: 5 bits [20-16]
 	intfloat Rm;
 	Rm.i = (inp_inst.i >> 16) & 0x1F;
@@ -371,19 +345,15 @@ void r_format(intfloat inp_inst, instruction_t instr) {
 		sprintf(str, "%s X%d, X%d, X%d", instr.mnemonic, Rd.i, Rn.i, Rm.i);
 	}
 
-	printf("X%d, X%d, X%d\n", Rd.i, Rn.i, Rm.i);
+	//printf("X%d, X%d, X%d\n", Rd.i, Rn.i, Rm.i);
 
-	printf("argument: %s\n", str); 
-	printf("%d\n", instruction_counter);
+	//printf("argument: %s\n", str); 
+	//printf("%d\n", instruction_counter);
 	insert_instruction(str);
 }
 
 void i_format(intfloat inp_inst, instruction_t instr) {
-	printf("I-format\n");
-
 	// opcode: first 10 bits [31-22]
-	printf("%s ", instr.mnemonic);
-	
 	// immediate value: 12 bits [21-10]
 	intfloat immediate;
 	immediate.i = (inp_inst.i >> 10) &0xFFF;
@@ -399,7 +369,7 @@ void i_format(intfloat inp_inst, instruction_t instr) {
 	Rd.i = inp_inst.i & 0x1F;
 	//printf("%d\n", Rd.i);
 	
-	printf("X%d, X%d, #%d\n", Rd.i, Rn.i, immediate.i);
+	//printf("X%d, X%d, #%d\n", Rd.i, Rn.i, immediate.i);
 
 	char str[30];
 	sprintf(str, "%s X%d, X%d, #%d", instr.mnemonic, Rd.i, Rn.i, immediate.i);
@@ -410,9 +380,7 @@ void i_format(intfloat inp_inst, instruction_t instr) {
 // 1) checks if the label is declared at: line number - offset, inserts label otherwise. In LEGv8: ```branch2:```
 // 2) inserts the actual instruction. in LEGv8: ```B branch2```
 void b_format(intfloat inp_inst, instruction_t instr) {
-	printf("B-format\n");
-	printf("%s\n", instr.mnemonic);
-	
+	//printf("B-format\n");
 	branch_label *temp_branch = malloc(sizeof(branch_label));
 	
 	// create instance of label and add it to the output array
@@ -425,7 +393,6 @@ void b_format(intfloat inp_inst, instruction_t instr) {
 	
 	temp_branch->label = malloc(strlen(str_count) + 1);
 	strcpy(temp_branch->label, str_count);
-	printf("%s\n", temp_branch->label);
 	
 	// insert actual instruction (like: ```B loop2```)
 	// increment instruction counter (at the beginning?)
@@ -436,7 +403,6 @@ void b_format(intfloat inp_inst, instruction_t instr) {
 	// handling for signed address (negatives)
 	if (relative & 0x02000000) {
 		relative |= ~0x03FFFFFF;
-		printf("NEGATIVE REL %d \n", relative);
 	}
 
 	temp_branch->absolute_index = instruction_counter + relative;
@@ -447,8 +413,7 @@ void b_format(intfloat inp_inst, instruction_t instr) {
 }
 
 void cb_format(intfloat inp_inst, instruction_t instr) {
-	printf("CB-format\n");
-
+	//printf("CB-format\n");
 	intfloat COND_BR_address;
  	COND_BR_address.i = (inp_inst.i >> 5) & 0x7FFFF;
 	
@@ -469,16 +434,15 @@ void cb_format(intfloat inp_inst, instruction_t instr) {
 	
 	temp_branch->label = malloc(strlen(str_count) + 1);
 	strcpy(temp_branch->label, str_count);
-	printf("%s\n", temp_branch->label);
-
+	
 	intfloat Rt;
 	char str[50];
 	
 	// check for B.cond instruction. diverge if so
 	if (strcmp(instr.mnemonic, "B.") == 0) {
 		Rt.i = inp_inst.i & 0x1F;
-		printf("+++RT IS: %d\n", Rt.i);
-		sprintf(str, "%s%s %s", instr.mnemonic, b_suffix[Rt.i], temp_branch->label);
+		
+		sprintf(str, "%s%s %s", instr.mnemonic, b_suffix[Rt.i], actual_instr);
 		insert_instruction(str);
 		temp_branch->absolute_index = instruction_counter + COND_BR_address.i;
 		insert_label(*temp_branch, temp_branch->absolute_index);
