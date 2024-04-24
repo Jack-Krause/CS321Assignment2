@@ -65,6 +65,7 @@ void ADDI_inst(intfloat inp_inst, instruction_t instr);
 void AND_inst(intfloat inp_inst, instruction_t instr);
 void ANDI_inst(intfloat inp_inst, instruction_t instr);
 void B_inst(intfloat inp_inst, instruction_t instr);
+void B_cond(intfloat inp_inst, instruction_t instr);
 void BL_inst(intfloat inp_inst, instruction_t instr);
 void BR_inst(intfloat inp_inst, instruction_t instr);
 void CBNZ_inst(intfloat inp_inst, instruction_t instr);
@@ -88,8 +89,13 @@ void SUBI_inst(intfloat inp_inst, instruction_t instr);
 void SUBIS_inst(intfloat inp_inst, instruction_t instr);
 void SUBS_inst(intfloat inp_inst, instruction_t instr);
 
+// LEGv8 "B.cond" instruction suffix array. Maps hexadecimal to strings
+const char* b_suffix[14] = {
+	"EQ", "NE", "HS", "LO", "MI", "PL", "VS", "VC",
+	"HI", "LS", "GE", "LT", "GT", "LE"
+};
 
-
+// LEGv8 opcodes for needed instructions:
 instruction_t instruction[] = {
   { "ADD",     ADD_inst,    0b10001011000 },
   { "ADDI",    ADDI_inst,   0b1001000100  },
@@ -97,6 +103,7 @@ instruction_t instruction[] = {
   { "ANDI",    ANDI_inst,   0b1001001000  },
   { "B",       B_inst,      0b000101      },
   { "BL",      BL_inst,     0b100101      },
+  { "B.",      B_cond,      0b01010100    },
   { "BR",      BR_inst,     0b11010110000 },
   { "CBNZ",    CBNZ_inst,   0b10110101    },
   { "CBZ",     CBZ_inst,    0b10110100    },
@@ -440,8 +447,6 @@ void cb_format(intfloat inp_inst, instruction_t instr) {
 	
 	// add new branch if needed, similar to B-format
 	branch_label *temp_branch = malloc(sizeof(branch_label));
-	
-	printf("Flag 1\n");
 
 	char str_count[30];
 	char actual_instr[35];
@@ -450,26 +455,28 @@ void cb_format(intfloat inp_inst, instruction_t instr) {
 	sprintf(actual_instr, "%s", str_count);
 	strcat(str_count, ":");
 	
-	printf("Flag 2\n");
-
 	temp_branch->label = malloc(strlen(str_count) + 1);
 	strcpy(temp_branch->label, str_count);
 	printf("%s\n", temp_branch->label);
 
 	intfloat Rt;
-	Rt.i = inp_inst.i & 0x1F;
-
-	printf("Flag 3\n");
-
 	char str[50];
+	
+	// check for B.cond instruction. diverge if so
+	if (strcmp(instr.mnemonic, "B.") == 0) {
+		Rt.i = (inp_inst.i >> 20) & 0xF;
+		sprintf(str, "%s%s %s", instr.mnemonic, b_suffix[Rt.i], temp_branch->label);
+	}
+
+	// else: continue as normal
+
+	Rt.i = inp_inst.i & 0x1F;
 	sprintf(str, "%s X%d, %s", instr.mnemonic, Rt.i, actual_instr);
 
 	insert_instruction(str);
-	
-	printf("Flag 4\n");
 
 	temp_branch->absolute_index = instruction_counter + COND_BR_address.i;
-	printf("Flag 5\n");
+	
 	insert_label(*temp_branch, temp_branch->absolute_index);
 }
 
@@ -592,6 +599,11 @@ void ANDS_inst(intfloat inp_inst, instruction_t instr) {
 void B_inst(intfloat inp_inst, instruction_t instr) {
 	b_format(inp_inst, instr);
 }	
+
+void B_cond(intfloat inp_inst, instruction_t instr) {
+	// special case of CB-format
+	cb_format(inp_inst, instr);
+}
 
 void BL_inst(intfloat inp_inst, instruction_t instr) {
 	b_format(inp_inst, instr);
